@@ -22,15 +22,16 @@
 #include <fstream>
 #include <iostream>
 #include "Pet.h"
+#include "food.h"
 
 
 void LifeStats(ImGuiStyle* lif = NULL);
 //void ThirstStats(ImGuiStyle* trst = NULL);
 //void HungerStats(ImGuiStyle* hngr = NULL);
 
-PetMgr::DB_Type SaveFormat = PetMgr::DB_Type::FILE;
+Pet_Manager::DB_Type SaveFormat = Pet_Manager::DB_Type::FILE;
 
-//Class to get Variables from struct in PetMgr
+//Class to get Variables from struct in Pet_Manager
 
 void companionF()
 {
@@ -216,7 +217,7 @@ namespace ImGui
 
 int main(int argc, char** argv)
 {
-    std::unique_ptr<PetMgr[]> lVobj(new PetMgr[4]);
+    std::unique_ptr<Pet_Manager[]> pet_manager_obj(new Pet_Manager[4]);
 
     // Start SFML Window
     sf::RenderWindow window(sf::VideoMode(1200, 700), "Companion");
@@ -292,19 +293,19 @@ int main(int argc, char** argv)
                     {
                         if (ImGui::MenuItem(items[0]))
                         {
-                            lVobj[0].Save_DB(items[0], SaveFormat);
+                            pet_manager_obj[0].Save_DB(items[0], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[1]))
                         {
-                            lVobj[1].Save_DB(items[1], SaveFormat);
+                            pet_manager_obj[1].Save_DB(items[1], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[2]))
                         {
-                            lVobj[2].Save_DB(items[2], SaveFormat);
+                            pet_manager_obj[2].Save_DB(items[2], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[3]))
                         {
-                            lVobj[3].Save_DB(items[3], SaveFormat);
+                            pet_manager_obj[3].Save_DB(items[3], SaveFormat);
                         }
                         ImGui::EndMenu();
                     }
@@ -312,19 +313,19 @@ int main(int argc, char** argv)
                     {
                         if (ImGui::MenuItem(items[0]))
                         {
-                            lVobj[0].Load_DB(items[0], SaveFormat);
+                            pet_manager_obj[0].Load_DB(items[0], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[1]))
                         {
-                            lVobj[1].Load_DB(items[1], SaveFormat);
+                            pet_manager_obj[1].Load_DB(items[1], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[2]))
                         {
-                            lVobj[2].Load_DB(items[2], SaveFormat);
+                            pet_manager_obj[2].Load_DB(items[2], SaveFormat);
                         }
                         if (ImGui::MenuItem(items[3]))
                         {
-                            lVobj[3].Load_DB(items[3], SaveFormat);
+                            pet_manager_obj[3].Load_DB(items[3], SaveFormat);
                         }
                         ImGui::EndMenu();
                     }
@@ -335,12 +336,12 @@ int main(int argc, char** argv)
                     if (ImGui::MenuItem("file", NULL, &save_file))
                     {
                         save_sql = !save_sql;
-                        SaveFormat = PetMgr::DB_Type::FILE;
+                        SaveFormat = Pet_Manager::DB_Type::FILE;
                     }
                     if (ImGui::MenuItem("sql", NULL, &save_sql))
                     {
                         save_file = !save_file;
-                        SaveFormat = PetMgr::DB_Type::SQLITE;
+                        SaveFormat = Pet_Manager::DB_Type::SQLITE;
                     }
                     ImGui::EndMenu();
                 }
@@ -348,46 +349,46 @@ int main(int argc, char** argv)
             }
 
             // Age
-            ImGui::Text("Age: %.1f", lVobj[selItem].petVar.Age);
+            ImGui::Text("Age: %.1f", pet_manager_obj[selItem].petVar.Age);
             ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x * 10);
             ImGui::SetNextItemWidth(100.0f);
             if (ImGui::Combo("Pet", &selItem, items, IM_ARRAYSIZE(items)))
             {
-                // this code gets if user clicks on the button // but noting needed selItem linked to lVobj[selItem]
+                // this code gets if user clicks on the button // but noting needed selItem linked to pet_manager_obj[selItem]
             }
 
              // Health
             char health_buf[64];
-            sprintf_s(health_buf, "%.1f/%.1f%%", (lVobj[selItem].petVar.Health), lVobj[selItem].petVar.Max_Health);
-            ImGui::ProgressBar2((lVobj[selItem].petVar.Health / lVobj[selItem].petVar.Max_Health), ImVec2(250.0f, 0.0f), "Health", health_buf, lVobj[selItem].petVar.Health <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
+            sprintf_s(health_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Health), pet_manager_obj[selItem].petVar.Max_Health);
+            ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Health / pet_manager_obj[selItem].petVar.Max_Health), ImVec2(250.0f, 0.0f), "Health", health_buf, pet_manager_obj[selItem].petVar.Health <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
 
             // Hunger
             char hunger_buf[64];
-            sprintf_s(hunger_buf, "%.1f/%.1f%%", (lVobj[selItem].petVar.Hunger), lVobj[selItem].petVar.Max_Hunger);
-            ImGui::ProgressBar2((lVobj[selItem].petVar.Hunger / lVobj[selItem].petVar.Max_Hunger), ImVec2(250.0f, 0.0f), "Hunger", hunger_buf, lVobj[selItem].petVar.Hunger <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
+            sprintf_s(hunger_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Hunger), pet_manager_obj[selItem].petVar.Max_Hunger);
+            ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Hunger / pet_manager_obj[selItem].petVar.Max_Hunger), ImVec2(250.0f, 0.0f), "Hunger", hunger_buf, pet_manager_obj[selItem].petVar.Hunger <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
 
             // Thirst
             char thirst_buf[64];
-            sprintf_s(thirst_buf, "%.1f/%.1f%%", (lVobj[selItem].petVar.Thirst), lVobj[selItem].petVar.Max_Thirst);
-            ImGui::ProgressBar2((lVobj[selItem].petVar.Thirst / lVobj[selItem].petVar.Max_Thirst), ImVec2(250.0f, 0.0f), "Thirst", thirst_buf, lVobj[selItem].petVar.Thirst <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
+            sprintf_s(thirst_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Thirst), pet_manager_obj[selItem].petVar.Max_Thirst);
+            ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Thirst / pet_manager_obj[selItem].petVar.Max_Thirst), ImVec2(250.0f, 0.0f), "Thirst", thirst_buf, pet_manager_obj[selItem].petVar.Thirst <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
 
             // Food Bowl
             char food_buf[64];
-            sprintf_s(food_buf, "%.1f/%.1f%%", (lVobj[selItem].petVar.Plate), lVobj[selItem].petVar.Max_Plate);
-            ImGui::ProgressBar3((lVobj[selItem].petVar.Plate / lVobj[selItem].petVar.Max_Plate), ImVec2(50.0f, 250.0f), food_buf);
+            sprintf_s(food_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Plate), pet_manager_obj[selItem].petVar.Max_Plate);
+            ImGui::ProgressBar3((pet_manager_obj[selItem].petVar.Plate / pet_manager_obj[selItem].petVar.Max_Plate), ImVec2(50.0f, 250.0f), food_buf);
 
             ImGui::SameLine();
 
             // Water Dish
             char water_bowl_buf[64];
-            sprintf_s(water_bowl_buf, "%.1f/%.1f%%", (lVobj[selItem].petVar.Water_Bowl), lVobj[selItem].petVar.Max_Water_Bowl);
-            ImGui::ProgressBar3((lVobj[selItem].petVar.Water_Bowl / lVobj[selItem].petVar.Max_Water_Bowl), ImVec2(50.0f, 250.0f), water_bowl_buf);
+            sprintf_s(water_bowl_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Water_Bowl), pet_manager_obj[selItem].petVar.Max_Water_Bowl);
+            ImGui::ProgressBar3((pet_manager_obj[selItem].petVar.Water_Bowl / pet_manager_obj[selItem].petVar.Max_Water_Bowl), ImVec2(50.0f, 250.0f), water_bowl_buf);
 
             // Button to make food available
             if (ImGui::Button("Replenish Food"))
             {
                 // Add Food to Plate
-                lVobj[selItem].Feeder();
+                pet_manager_obj[selItem].Feeder();
             }
             ImGui::SameLine();
 
@@ -395,10 +396,14 @@ int main(int argc, char** argv)
             if (ImGui::Button("Fill Water"))
             {
                 // Add Water to plate ?
-                lVobj[selItem].Hydrater();
+                pet_manager_obj[selItem].Hydrater();
             }
- 
-            //ImGui::ProgressBar2((lVobj[selItem].petVar.Water_Bowl / lVobj[selItem].petVar.Max_Water_Bowl), ImVec2(0.0f, 250.0f), water_bowl_buf);
+            
+            if (ImGui::Button("Food Menu"))
+            {
+                food_menu::food_list();
+            }
+            //ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Water_Bowl / pet_manager_obj[selItem].petVar.Max_Water_Bowl), ImVec2(0.0f, 250.0f), water_bowl_buf);
 
 
 
@@ -416,10 +421,10 @@ int main(int argc, char** argv)
         if(Clock.getElapsedTime().asSeconds() >= 0.015) 
         {
             //DebugBreak();
-           lVobj[0].Update();
-           lVobj[1].Update();
-           lVobj[2].Update();
-           lVobj[3].Update();
+           pet_manager_obj[0].Update();
+           pet_manager_obj[1].Update();
+           pet_manager_obj[2].Update();
+           pet_manager_obj[3].Update();
            Clock.restart();
         }
 
@@ -434,7 +439,7 @@ int main(int argc, char** argv)
 
     ImGui::SFML::Shutdown(); // Call when you want to shutdown imgui
 
-    lVobj.release();
+    pet_manager_obj.release();
 
     return 0;
 

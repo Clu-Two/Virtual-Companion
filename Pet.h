@@ -2,7 +2,7 @@
 
 #include "PetVar.h"
 
-class PetMgr
+class Pet_Manager
 {
 
 public:
