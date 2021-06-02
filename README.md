@@ -1,7 +1,7 @@
 Virtual Companion Alpha v0.4
 ============================
 A simple virtual pet, essentially a stat management game.
-Uses ImGui for an interface.
+Uses ImGui for the interface.
 
 ------------
 Dependencies
