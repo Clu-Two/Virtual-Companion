@@ -4,6 +4,7 @@ A simple virtual pet, essentially a stat management game.
 Uses ImGui for the interface.
 
 It's a heavy work in progress, and in no way elegant in its current state.
+
 ------------
 Dependencies
 ------------
