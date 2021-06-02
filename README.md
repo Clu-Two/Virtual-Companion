@@ -8,10 +8,10 @@ It's a heavy work in progress, and in no way elegant in its current state.
 ------------
 Dependencies
 ------------
--ImGui 1.83
--SFML 2.5.1
--ImGui-SFML v2.3
--Sqlite 3
+* ImGui 1.83
+* SFML 2.5.1
+* ImGui-SFML v2.3
+* Sqlite 3
 
 ---------------------------
 Features in this version
