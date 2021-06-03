@@ -2,13 +2,18 @@
 
 #include "Pet.h"
 #include "food.h"
+#include "living.h"
 
 #include <iostream>
+
+PetVars petvars_obj;
+food_dish food_dish_obj;
+//food_data food_data_obj;
 
 void Pet_Manager::Update()
 {
     addAge();
-    Eater();
+    food_dish_obj.Eater(food_dish_obj);
     Digester();
     StarvManager();
     Drinker();
@@ -19,92 +24,144 @@ void Pet_Manager::Update()
 }
 
 
-int food_menu::food_list()
-{
 
-    ImGui::Begin("Todays Menu");
-    if (ImGui::Button("Pizza Slice"))
+
+bool food_dish::food_list(bool& show)
+{
+    //food_menu food_menu_obj;
+    food_menu_obj.carrot.digestion_time = 80;
+    food_menu_obj.banana.digestion_time = 50;
+    food_menu_obj.carrot.dish_fill = 20;
+    food_menu_obj.banana.dish_fill = 20;
+    static bool x = false;
+
+    ImGui::Begin("Todays Menu"); 
+    if (ImGui::Button("Carrot")) 
     {
-        food_dish::dish_fill(pizza_slice)
+      
+        if (dish_current < dish_max)
+        {
+            dish_fill(food_menu_obj.carrot);
+        }
+        if (dish_current >= dish_max)
+        {
+            x = !x;
+        }
     }
-    if (ImGui::Button("Roast Potato"))
+    ImGui::SameLine();
+    if (ImGui::Button("Banana"))
     {
-        food_dish::dish_fill(roast_potato)
+       
+        if (dish_current < dish_max)
+        {
+            dish_fill(food_menu_obj.banana);
+        }
+        if (dish_current >= dish_max)
+        {
+            x = !x;
+        }
     }
-    if (ImGui::Button("Carrot"))
+    if (x)
     {
-        food_dish::dish_fill(carrot)
+        dish_full(x);
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Close"))
+    {
+        show = !show;
+    }
+
+    //if (ImGui::Button(""))
+    //{
+    //    food_dish::dish_fill(food_menu_obj.roast_potato);
+    //}
+    //if (ImGui::Button("Carrot"))
+    //{
+    //    food_dish::dish_fill(food_menu_obj.carrot);
+    //}
+
     ImGui::End();
-    return 0;
+    return !show;
 }
 
-void food_dish::dish_fill(food_menu)
+int food_dish::dish_fill(food_data& food_dish_obj)
 {
-    if (dish_current < dish_max && dish_current <= dish_min)
-    {
-        dish_current += food_menu;
-    }
-    if (dish_current >= dish_max)
-    {
-        dish_full();
-    }
+        dish_current += food_dish_obj.dish_fill;
+        food_dish_obj.digestion_time += food_dish_obj.digestion_time;
+        return food_dish_obj.digestion_time;
 }
 
-void food_dish::dish_full()
+
+bool food_dish::dish_full(bool& show) // I've tried using a bool, if true, stay open, but didn't get it right
 {
-    ImGui::Begin();
-    ImGui::Text("[Pet Name] still has food left");
+  
+    ImGui::BeginChild("Uh Oh!");
+    ImGui::Text(petvars_obj.pet_name);
+    ImGui::SameLine(27.7f, NULL);
+    ImGui::Text(petvars_obj.dish_full_error);
     if (ImGui::Button("Ok"))
     {
-        ImGui::CloseCurrentPopup();
+        show = !show;
     }
-    ImGui::End();
+    ImGui::EndChild();
+    return !show;
 }
 
 // When button pressed make food avaiable
-void Pet_Manager::Feeder()
+//void Pet_Manager::Feeder()
+//{
+//    if (petVar.ALIVE == true)
+//    {
+//        if (petVar.Plate < petVar.Max_Plate) // Add food to Plate if not Full
+//        {
+//            petVar.Plate += 20.00f;
+//            if (petVar.Plate > petVar.Max_Plate)
+//            {
+//                petVar.Plate = petVar.Max_Plate;
+//            }
+//        }
+//        else // Plate Full inform user
+//        {
+//            petVar.Plate = petVar.Max_Plate;
+//            std::cout << "Plate Full" << std::endl;
+//        }
+//    }
+//}
+
+// If Plate has Food - Eat and fill Stomach
+void food_dish::Eater(food_dish& obj) // 
 {
-    if (petVar.ALIVE == true)
+    if (petvars_obj.ALIVE == true)
     {
-        if (petVar.Plate < petVar.Max_Plate) // Add food to Plate if not Full
+        if ((dish_current > dish_min) && (petvars_obj.Hunger > 0.05f && (petvars_obj.AWAKE == true)) && (petvars_obj.Stomach < petvars_obj.Stomach_Max)) // If Plate has food AND Hungry
         {
-            petVar.Plate += 20.00f;
-            if (petVar.Plate > petVar.Max_Plate)
-            {
-                petVar.Plate = petVar.Max_Plate;
-            }
+            dish_current -= 0.03f; // Reduce Food available to eat 3f max 0/3
+            petvars_obj.Stomach += 0.3f; // Increase Ingested Calories // 
         }
-        else // Plate Full inform user
+        else
         {
-            petVar.Plate = petVar.Max_Plate;
-            std::cout << "Plate Full" << std::endl;
+            std::cout << "Companion cannot eat any more" << std::endl;
         }
     }
 }
 
 // If Plate has Food - Eat and fill Stomach
-void Pet_Manager::Eater() // 
-{
-    if (petVar.ALIVE == true)
-    {
-        if (petVar.Plate > petVar.Min_Plate) // If Plate has food
-        {
-            if (petVar.Hunger > 0.05f && (petVar.AWAKE == true)) // If Hungry
-            {
-                if (petVar.Stomach < petVar.Stomach_Max) // Eat food if not full //          Must put limit on Times can be fed in one day // This I'll add later
-                {
-                    petVar.Plate -= 0.03f; // Reduce Food available to eat 3f max 0/3
-                    petVar.Stomach += 0.3f; // Increase Ingested Calories // 
-                }
-                else
-                {
-                    std::cout << "Companion cannot eat any more" << std::endl;
-                }
-            }
-        }
-    }
-}
+//void Pet_Manager::Eater(food_dish &obj) // 
+//{
+//    if (petVar.ALIVE == true)
+//    {
+//        if ((obj.dish_current > obj.dish_min) && (petVar.Hunger > 0.05f && (petVar.AWAKE == true)) && (petVar.Stomach < petVar.Stomach_Max)) // If Plate has food AND Hungry
+//        {
+//
+//                obj.dish_current -= 0.03f; // Reduce Food available to eat 3f max 0/3
+//                petVar.Stomach += 0.3f; // Increase Ingested Calories // 
+//        }
+//        else 
+//        {
+//            std::cout << "Companion cannot eat any more" << std::endl;
+//        }
+//    }
+//}
 
 // If has consumed food, digest food
 void Pet_Manager::Digester()
@@ -181,6 +238,10 @@ void Pet_Manager::StarvManager() // Starv Manager
             petVar.Starv = petVar.Max_Starv;
             petVar.Health -= 0.0025f;
         }
+    }
+    if (!petVar.ALIVE)
+    {
+        pet_death(petVar.ALIVE, *petVar.starv_death);
     }
 }
 
@@ -305,6 +366,10 @@ void Pet_Manager::DehyManager()
             petVar.Health -= 0.025f;
         }
     }
+    if (!petVar.ALIVE)
+    {
+        pet_death(petVar.ALIVE, *petVar.thirst_death);
+    }
 }
 
 //Age
@@ -314,4 +379,14 @@ void Pet_Manager::addAge()
     {
         petVar.Age += 0.01f;
     }
+}
+
+bool Pet_Manager::pet_death(bool& show, const char cause_of_death) // add remove text after a few seconds
+{
+    ImGui::Begin("Report");
+    ImGui::Text(petvars_obj.pet_name);
+    ImGui::SameLine(27.7f, NULL);
+    ImGui::Text(petvars_obj.cause_of_death);
+    ImGui::End();
+    return !show;
 }

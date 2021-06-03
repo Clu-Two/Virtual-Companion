@@ -190,7 +190,7 @@ namespace ImGui
         ItemSize(size, style.FramePadding.y);
         if (!ItemAdd(bb, 0))
             return;
-\
+
         // Render
         fraction = ImSaturate(fraction);
         RenderFrame(bb.Min, bb.Max, bk_color, false, style.FrameRounding);
@@ -209,7 +209,8 @@ namespace ImGui
 
         ImVec2 overlay_size = CalcTextSize(overlay, NULL);
         if (overlay_size.x > 0.0f)
-            RenderTextWrapped(bb.Max, overlay, NULL, 1); 
+            RenderTextWrapped(bb.Max, overlay, NULL, 50); 
+            //RenderTextClipped(bb.Max, bb.Min, overlay, NULL, &overlay_size, ImVec2(0.0f, 0.0f), &bb);
     }
 
 }
@@ -218,11 +219,12 @@ namespace ImGui
 int main(int argc, char** argv)
 {
     std::unique_ptr<Pet_Manager[]> pet_manager_obj(new Pet_Manager[4]);
+    //std::unique_ptr<food_dish[]> food_dish_obj(new food_dish[4]);
 
     // Start SFML Window
     sf::RenderWindow window(sf::VideoMode(1200, 700), "Companion");
     window.setVerticalSyncEnabled(true);
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(60); // Spped of display refresh and stats update
 
     //
     window.resetGLStates(); // call it if you only draw ImGui. Otherwise not needed.
@@ -243,12 +245,15 @@ int main(int argc, char** argv)
     ImGui::SetNextWindowSize(ImVec2(600, 350));
 
     static int selItem = 0;
+    static int dish = 0;
     static const char* items[] = { "Save 1","Save 2", "Save 3", "Save 4" };
 
 
     static bool save_file = true;
     static bool save_sql = false;
 
+    static bool x = false;
+    food_dish obj;
     // Main Loop
     while (window.isOpen())
     {
@@ -372,26 +377,45 @@ int main(int argc, char** argv)
             sprintf_s(thirst_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Thirst), pet_manager_obj[selItem].petVar.Max_Thirst);
             ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Thirst / pet_manager_obj[selItem].petVar.Max_Thirst), ImVec2(250.0f, 0.0f), "Thirst", thirst_buf, pet_manager_obj[selItem].petVar.Thirst <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive));
 
-            // Food Bowl
+
+
+            //// Food Bowl
+            //char food_buf[64];
+            //sprintf_s(food_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Plate), pet_manager_obj[selItem].petVar.Max_Plate);
+            //ImGui::ProgressBar3((pet_manager_obj[selItem].petVar.Plate / pet_manager_obj[selItem].petVar.Max_Plate), ImVec2(50.0f, 250.0f), food_buf);
+
+            // New Food Dish
             char food_buf[64];
-            sprintf_s(food_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Plate), pet_manager_obj[selItem].petVar.Max_Plate);
-            ImGui::ProgressBar3((pet_manager_obj[selItem].petVar.Plate / pet_manager_obj[selItem].petVar.Max_Plate), ImVec2(50.0f, 250.0f), food_buf);
+            sprintf_s(food_buf, "%.0f/%.0f%%", (obj.dish_current), obj.dish_max);
+            ImGui::ProgressBar3((obj.dish_current / obj.dish_max), ImVec2(50.0f, 250.0f), food_buf);
 
             ImGui::SameLine();
 
             // Water Dish
             char water_bowl_buf[64];
-            sprintf_s(water_bowl_buf, "%.1f/%.1f%%", (pet_manager_obj[selItem].petVar.Water_Bowl), pet_manager_obj[selItem].petVar.Max_Water_Bowl);
+            sprintf_s(water_bowl_buf, "%.0f/%.0f%%", (pet_manager_obj[selItem].petVar.Water_Bowl), pet_manager_obj[selItem].petVar.Max_Water_Bowl);
             ImGui::ProgressBar3((pet_manager_obj[selItem].petVar.Water_Bowl / pet_manager_obj[selItem].petVar.Max_Water_Bowl), ImVec2(50.0f, 250.0f), water_bowl_buf);
 
             // Button to make food available
-            if (ImGui::Button("Replenish Food"))
+            //if (ImGui::Button("Replenish Food"))
+            //{
+            //    // Add Food to Plate
+            //    pet_manager_obj[selItem].Feeder();
+            //}
+            //ImGui::SameLine(); 
+
+            if (ImGui::Button("Food Menu"))
             {
-                // Add Food to Plate
-                pet_manager_obj[selItem].Feeder();
+
+                x = !x;
+
+            }
+            if (x)
+            {
+                obj.food_list(x);
+
             }
             ImGui::SameLine();
-
             // Button to make water available
             if (ImGui::Button("Fill Water"))
             {
@@ -399,15 +423,12 @@ int main(int argc, char** argv)
                 pet_manager_obj[selItem].Hydrater();
             }
             
-            if (ImGui::Button("Food Menu"))
-            {
-                food_menu::food_list();
-            }
+
             //ImGui::ProgressBar2((pet_manager_obj[selItem].petVar.Water_Bowl / pet_manager_obj[selItem].petVar.Max_Water_Bowl), ImVec2(0.0f, 250.0f), water_bowl_buf);
+}
 
 
 
-        }
 
         ImGui::PopFont();
 

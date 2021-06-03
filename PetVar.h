@@ -1,8 +1,16 @@
 #pragma once
 
+#include "food.h"
 
 using PetVars = struct PetVars // How does this work, you've defined a new namespace?
 {
+    food_dish food_dish_obj;  // u will getting serror in this i think, not sure...
+
+    char pet_name[100] = "Titus";
+    char dish_full_error[25] = "hasn't finished eating!";
+    char thirst_death[25] = "died of dehydration.";
+    char starv_death[25] = "died of stavation.";
+    char cause_of_death[25] = "error";
     // Living
     float Age = 0.0;
     bool ALIVE = true;

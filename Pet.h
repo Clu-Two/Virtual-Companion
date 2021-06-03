@@ -13,11 +13,12 @@ public:
     };
 
     PetVars petVar;
+    food_dish food_dish_obj;
 
     void addAge();
 
     void Feeder();
-    void Eater();
+    //void Eater();
     void Digester();
     void StarvManager();
 
@@ -26,7 +27,7 @@ public:
     void H2OProcessor();
     void DehyManager();
 
-    //void companionF();
+    bool pet_death(bool& show, const char cause_of_death);
 
     void logDB_CMD();
 public:

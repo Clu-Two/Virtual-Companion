@@ -132,6 +132,18 @@ bool Load_sql3(const char* sz_filename, PetVars& obj)
     rc = sqlite3_exec(master_db, "SELECT Stat FROM iVariables WHERE iv_Name = 'Min_Plate';", callback, &obj.Min_Plate, &dbl_error);
     rc = sqlite3_exec(master_db, "SELECT Stat FROM iVariables WHERE iv_Name = 'Max_Plate';", callback, &obj.Max_Plate, &dbl_error);
 
+    // Food Items // Needs to fetch into food.h // I was going to get to this, but ty
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj.Food, &dbl_error);
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj.Food, &dbl_error);
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj.Food, &dbl_error);
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj.Food, &dbl_error);
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj.Food, &dbl_error);
+    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj.Food, &dbl_error);
+
+
+    //rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj, &dbl_error);
+
+    // I gotta add the rest
     sqlite3_close(master_db);
     return (rc == SQLITE_OK);
 }
@@ -163,22 +175,20 @@ bool Make_sql3(const char* sz_filename)
         sqlite3_exec(master_db, "INSERT INTO FoodCaps (fc_value) values ('300', '550');", NULL, NULL, &cr_error);
 
         // Food Types (Static / Global)
-        sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS FoodTypes(food_Name STRING, fCalories INTEGER, fVitamins INTEGER, fCarbs INTEGER, fSugar INTEGER, fEmotion INTEGER); ", NULL, NULL, &cr_error);
-        // fk_fCompStats_id INTEGER DEFAULT 0 REFERENCES fComponentStats(fCompStats_id)); ", NULL, NULL, &cr_error); FIXME: Foreign Keys
-        // fk_fCompStats_id INTEGER DEFAULT 0 REFERENCES fComponentStats(fCompStats_id)); ", NULL, NULL, &cr_error); FIXME: Foreign Keys
-    // Adding Food & Food Stats to Table - Name, Calories, Vitamins %, Carbs %, Sugar %, Emotion // This is unused, its part of a future more complex food system
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Roast_Potato', '150', '10', '90', '0', '2');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Pizza_Slice', '250', '0', '100', '0', '2');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Carrot', '50', '100', '0', '0', '1');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Salad', '100', '90', '10', '0', '1');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Doughnut', '300', '0', '50', '50', '3');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (fName, fCalories, fVitamins, fCarbs, fSugar, fEmotion) values ('Brownie', '300', '0', '50', '50', '3');", NULL, NULL, &cr_error);
-        // Food Component Stats (Static / Global) // PER ONE CALORIE
-        sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS fComponentStats(fCompStats_id INTEGER PRIMARY KEY AUTOINCREMENT, Component CHAR, hpReduction DOUBLE, hpRestore DOUBLE, DigestionTime DOUBLE); ", NULL, NULL, &cr_error);
-        // Adding Food Component Stats (Static / Global) // Try Not to Touch
-        sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csVitamins', '0.3', '0.5', '120000');", NULL, NULL, &cr_error); // Digestion Time in ms
-        sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csCarbs', '0.15', '0.1', '60000');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csSugar', '0.05', '0', '30000');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS FoodTypes(food_Name STRING, hunger_reduction DOUBLE, health_restore INTEGER, digestion_time INTEGER, fEmotion INTEGER); ", NULL, NULL, &cr_error);
+        // Adding Food & Food Stats to Table - Name, Calories, Vitamins %, Carbs %, Sugar %, Emotion // This is unused, its part of a future more complex food system
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Roast_Potato', '24.75', '21', '165', '2');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Pizza_Slice', '37.5', '25', '250', '2');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Carrot', '15', '25', '100', '1');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Salad', '28.5', '46', '190', '1');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Doughnut', '30', '15', '225', '3');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Brownie', '30', '15', '225', '3');", NULL, NULL, &cr_error);
+            //// Food Component Stats (Static / Global) // PER ONE CALORIE
+            //sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS fComponentStats(fCompStats_id INTEGER PRIMARY KEY AUTOINCREMENT, Component CHAR, hpReduction DOUBLE, hpRestore DOUBLE, DigestionTime DOUBLE); ", NULL, NULL, &cr_error);
+            //// Adding Food Component Stats (Static / Global) // Try Not to Touch
+            //sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csVitamins', '0.3', '0.5', '120000');", NULL, NULL, &cr_error); // Digestion Time in ms
+            //sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csCarbs', '0.15', '0.1', '60000');", NULL, NULL, &cr_error);
+            //sqlite3_exec(master_db, "INSERT INTO fComponentStats (Component, hpReduction, hpRestore, DigestionTime) values ('csSugar', '0.05', '0', '30000');", NULL, NULL, &cr_error);
         // Living Variables
         sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS iVariables(iv_Name CHAR, Stat REAL); ", NULL, NULL, &cr_error);
         // Adding Default Variable Stats
@@ -238,7 +248,7 @@ bool Make_sql3(const char* sz_filename)
     return (rc == SQLITE_OK);
 }
 
-bool PetMgr::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
+bool Pet_Manager::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
 {
     bool result = false;
     switch (db_type)
@@ -272,7 +282,7 @@ bool PetMgr::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*
     return result;
 }
 
-bool PetMgr::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
+bool Pet_Manager::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
 {
     bool result = false;
     switch (db_type)
@@ -306,7 +316,7 @@ bool PetMgr::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*
 }
 
 #ifdef _DEBUG
-void PetMgr::logDB_CMD()
+void Pet_Manager::logDB_CMD()
 {
     PetVars petVar;
     printf("\x1B[2J\x1B[H");  // clear console screen
