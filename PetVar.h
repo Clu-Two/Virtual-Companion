@@ -7,10 +7,11 @@ using PetVars = struct PetVars // How does this work, you've defined a new names
     food_dish food_dish_obj;  // u will getting serror in this i think, not sure...
 
     char pet_name[100] = "Titus";
-    char dish_full_error[25] = "hasn't finished eating!";
-    char thirst_death[25] = "died of dehydration.";
-    char starv_death[25] = "died of stavation.";
-    char cause_of_death[25] = "error";
+    char dish_full_error[24] = "hasn't finished eating!";
+    char thirst_death[21] = "died of dehydration.";
+    char starv_death[19] = "died of stavation.";
+    char cause_of_death[6] = "error";
+
     // Living
     float Age = 0.0;
     bool ALIVE = true;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "imgui.h"
 #include "PetVar.h"
 
 class Pet_Manager
@@ -42,3 +43,5 @@ public:
 
 
 extern const char* sqlstatement(const char* format, ...);
+
+

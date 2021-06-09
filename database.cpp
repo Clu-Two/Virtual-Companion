@@ -1,5 +1,6 @@
 
 #include "Pet.h"
+#include "food.h"
 
 #include <fstream>
 #include <iostream>
@@ -38,7 +39,7 @@ const char* sqlstatement(const char* format, ...)
     //sqlite3_exec(master_db, sqlstatement("%s %d values %s %f","iVariables", "iv_Name, Stat", "'Health'", 1.0f), NULL, NULL, &cr_error);
 }
 
-
+// Pet Vars
 bool Save_sql3(const char* sz_filename, PetVars obj)
 {
     char* sv_error;
@@ -58,6 +59,28 @@ bool Save_sql3(const char* sz_filename, PetVars obj)
     return (SQLITE_OK);
 }
 
+// Food Menu
+bool Save_sql3(const char* sz_filename, food_menu obj2)
+{
+    char* sv_error;
+    int rc;
+
+    sqlite3* master_db;
+
+    // sqlite3_exec(master_db, sqlstatement("INSERT INTO %s %d values %s %f","iVariables", "iv_Name, Stat", "'Health'", obj.Health), NULL, NULL, &sv_error);
+
+
+
+ //    sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values (" + sqlite3_exec()
+ //     sqlite3_exec(master_db, "INSERT INTO iVariables (" + iv_Name + "," + Stat ")" values('Health', '1.0'); ", NULL, NULL, &cr_error);
+ //         //sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values ('Def_Health', '1.0');", NULL, NULL, &cr_error);
+ //         sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values ('Min_Health', '0.0');", NULL, NULL, &cr_error);
+ //         sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values ('Max_Health', '1.0');", NULL, NULL, &cr_error);
+    return (SQLITE_OK);
+}
+
+
+// PetVars
 bool Load_sql3(const char* sz_filename, PetVars& obj)
 {
 
@@ -75,7 +98,6 @@ bool Load_sql3(const char* sz_filename, PetVars& obj)
 
          return (rc == SQLITE_OK);
     }
-
 
     //// Fetch Variables from db
     // Health & Life
@@ -132,20 +154,70 @@ bool Load_sql3(const char* sz_filename, PetVars& obj)
     rc = sqlite3_exec(master_db, "SELECT Stat FROM iVariables WHERE iv_Name = 'Min_Plate';", callback, &obj.Min_Plate, &dbl_error);
     rc = sqlite3_exec(master_db, "SELECT Stat FROM iVariables WHERE iv_Name = 'Max_Plate';", callback, &obj.Max_Plate, &dbl_error);
 
-    // Food Items // Needs to fetch into food.h // I was going to get to this, but ty
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj.Food, &dbl_error);
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj.Food, &dbl_error);
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj.Food, &dbl_error);
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj.Food, &dbl_error);
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj.Food, &dbl_error);
-    rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj.Food, &dbl_error);
-
-
     //rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj, &dbl_error);
 
     // I gotta add the rest
     sqlite3_close(master_db);
     return (rc == SQLITE_OK);
+}
+
+// Food Menu
+bool Load_sql3(const char* sz_filename, food_menu& obj2)
+{
+
+    char* dbl_error;
+    int rc;
+
+    sqlite3* master_db;
+
+    // Open db
+    rc = sqlite3_open_v2(sz_filename, &master_db, SQLITE_OPEN_READONLY, NULL);
+    // If db NOT exist
+    if (rc != SQLITE_OK)
+    {
+
+
+        return (rc == SQLITE_OK);
+    }
+
+// Food Hunger Reduction
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj2.potato.hunger_reduction, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj2.pizza.hunger_reduction, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj2.carrot.hunger_reduction, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj2.salad.hunger_reduction, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj2.doughnut.hunger_reduction, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT hunger_reduction FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj2.brownie.hunger_reduction, &dbl_error);
+
+// Food Health Restore
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj2.potato.health_restore, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj2.pizza.health_restore, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj2.carrot.health_restore, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj2.salad.health_restore, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj2.doughnut.health_restore, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT health_restore FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj2.brownie.health_restore, &dbl_error);
+
+// Food Health Restore
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj2.potato.dish_fill, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj2.pizza.dish_fill, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj2.carrot.dish_fill, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj2.salad.dish_fill, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj2.doughnut.dish_fill, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT dish_fill FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj2.brownie.dish_fill, &dbl_error);
+
+// Food Digestion Time
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Roast_Potato';", callback, &obj2.potato.digestion_time, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Pizza_Slice';", callback, &obj2.pizza.digestion_time, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Carrot';", callback, &obj2.carrot.digestion_time, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Salad';", callback, &obj2.salad.digestion_time, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Doughnut';", callback, &obj2.doughnut.digestion_time, &dbl_error);
+rc = sqlite3_exec(master_db, "SELECT digestion_time FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj2.brownie.digestion_time, &dbl_error);
+
+
+//rc = sqlite3_exec(master_db, "SELECT Stat FROM FoodTypes WHERE food_Name = 'Brownie';", callback, &obj, &dbl_error);
+
+// I gotta add the rest
+sqlite3_close(master_db);
+return (rc == SQLITE_OK);
 }
 
 bool Make_sql3(const char* sz_filename)
@@ -177,12 +249,12 @@ bool Make_sql3(const char* sz_filename)
         // Food Types (Static / Global)
         sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS FoodTypes(food_Name STRING, hunger_reduction DOUBLE, health_restore INTEGER, digestion_time INTEGER, fEmotion INTEGER); ", NULL, NULL, &cr_error);
         // Adding Food & Food Stats to Table - Name, Calories, Vitamins %, Carbs %, Sugar %, Emotion // This is unused, its part of a future more complex food system
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Roast_Potato', '24.75', '21', '165', '2');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Pizza_Slice', '37.5', '25', '250', '2');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Carrot', '15', '25', '100', '1');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Salad', '28.5', '46', '190', '1');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Doughnut', '30', '15', '225', '3');", NULL, NULL, &cr_error);
-        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, fEmotion) values ('Brownie', '30', '15', '225', '3');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Roast_Potato', '24.75', '21', '165', '25', '2');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Pizza_Slice', '37.5', '25', '250', '15', '2');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Carrot', '15', '25', '100', '5', '1');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Salad', '28.5', '46', '190', '10', '1');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Doughnut', '30', '15', '225', '40', '3');", NULL, NULL, &cr_error);
+        sqlite3_exec(master_db, "INSERT INTO FoodTypes (food_Name, hunger_reduction, health_restore, digestion_time, dish_fill, fEmotion) values ('Brownie', '30', '15', '225', '40','3');", NULL, NULL, &cr_error);
             //// Food Component Stats (Static / Global) // PER ONE CALORIE
             //sqlite3_exec(master_db, "PRAGMA foreign_keys = ON; CREATE TABLE IF NOT EXISTS fComponentStats(fCompStats_id INTEGER PRIMARY KEY AUTOINCREMENT, Component CHAR, hpReduction DOUBLE, hpRestore DOUBLE, DigestionTime DOUBLE); ", NULL, NULL, &cr_error);
             //// Adding Food Component Stats (Static / Global) // Try Not to Touch
@@ -311,6 +383,73 @@ bool Pet_Manager::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::
         result = true;
     }break;
         default: break;
+    }
+    return result;
+}
+
+bool food_manager::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
+{
+    bool result = false;
+    switch (db_type)
+    {
+    case DB_Type::FILE:
+    {
+        std::ofstream inFile{ sz_filename, std::ios::in | std::ios::binary };
+        if (inFile.good())
+        {
+            inFile.write(reinterpret_cast<char*>(&food_menu_obj), sizeof(food_menu));
+            result = true;
+        }
+        inFile.close();
+    }break;
+
+    case DB_Type::SQLITE:
+    {
+        // this can be changed to an more effective way
+        if (!Save_sql3(sz_filename, food_menu_obj))
+        {
+            Make_sql3(sz_filename);
+            if (!Save_sql3(sz_filename, food_menu_obj))
+            {
+                throw "error save/create db !!";
+            }
+        }
+        result = true;
+    }break;
+    default: break;
+    }
+    return result;
+}
+
+bool food_manager::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::FILE*/)
+{
+    bool result = false;
+    switch (db_type)
+    {
+    case DB_Type::FILE:
+    {
+        std::ifstream inFile{ sz_filename, std::ios::in | std::ios::binary };
+        if (inFile.good())
+        {
+            inFile.read(reinterpret_cast<char*>(&food_menu_obj), sizeof(food_menu));
+            result = true;
+        }
+        inFile.close();
+    }break;
+
+    case DB_Type::SQLITE:
+    {
+        if (!Load_sql3(sz_filename, food_menu_obj))
+        {
+            Make_sql3(sz_filename);
+            if (!Load_sql3(sz_filename, food_menu_obj))
+            {
+                throw "error save/create db !!";
+            }
+        }
+        result = true;
+    }break;
+    default: break;
     }
     return result;
 }
