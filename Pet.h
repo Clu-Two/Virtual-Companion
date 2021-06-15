@@ -1,6 +1,5 @@
 #pragma once
 
-#include "imgui.h"
 #include "PetVar.h"
 
 class Pet_Manager
@@ -18,8 +17,6 @@ public:
 
     void addAge();
 
-    void Feeder();
-    //void Eater();
     void Digester();
     void StarvManager();
 
@@ -37,8 +34,6 @@ public:
 
     bool Save_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
     bool Load_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
-
-    //static std::vector<float> LoadedVs; // here u have the data but its private
 };
 
 

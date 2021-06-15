@@ -5,18 +5,18 @@
 #include "Pet.h"
 #include "food.h"
 #include "living.h"
-#include "formatting.h"
 
 
-PetVars petvars_obj;
-food_dish food_dish_obj;
-formatting formatting_obj;
-//food_data food_data_obj;
+extern ImGuiWindowFlags main_window;
+extern ImGuiWindowFlags secondary_window;
+extern ImGuiWindowFlags notification_popup;
+
+extern Pet_Manager* pet_manager_obj; // MyRawPointer 
 
 void Pet_Manager::Update()
 {
     addAge();
-    food_dish_obj.Eater(food_dish_obj);
+    //food_dish_obj.Eater(food_dish_obj);
     Digester();
     StarvManager();
     Drinker();
@@ -38,7 +38,7 @@ bool food_dish::food_list(bool& show)
     //food_menu_obj.banana.dish_fill = 20;
     static bool x = false;
 
-    ImGui::Begin("Todays Menu", NULL, formatting_obj.secondary_window); 
+    ImGui::Begin("Todays Menu", NULL, secondary_window);
     if (ImGui::Button("Roast Potato"))
     {
         if (dish_current < dish_max)
@@ -117,22 +117,21 @@ bool food_dish::food_list(bool& show)
     return !show;
 }
 
-int food_dish::dish_fill(food_data& food_dish_obj)
+int food_dish::dish_fill( food_data& food_dish_obj)
 {
         dish_current += food_dish_obj.dish_fill;
         food_dish_obj.digestion_time += food_dish_obj.digestion_time;
         return food_dish_obj.digestion_time;
 }
 
-
-bool food_dish::dish_full(bool& show) // I've tried using a bool, if true, stay open, but didn't get it right
+bool food_dish::dish_full(bool& show) // u can move this 2 functions to petmanager
 {
     //ImGui::BeginChild("Uh Oh!");
     //ImGuiWindowFlags localflags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse;
-    ImGui::Begin("Dish Full", NULL, formatting_obj.notification_popup);
-    ImGui::Text(petvars_obj.pet_name);
+    ImGui::Begin("Dish Full", NULL, notification_popup);
+    ImGui::Text(pet_manager_obj->petVar.pet_name); // acessing main obj here its a pain xd
     ImGui::SameLine();
-    ImGui::Text(petvars_obj.dish_full_error);
+    ImGui::Text(pet_manager_obj->petVar.dish_full_error);
     ImGui::SameLine();
     if (ImGui::Button("Ok"))
     {
@@ -143,37 +142,16 @@ bool food_dish::dish_full(bool& show) // I've tried using a bool, if true, stay 
     return !show;
 }
 
-// When button pressed make food avaiable
-//void Pet_Manager::Feeder()
-//{
-//    if (petVar.ALIVE == true)
-//    {
-//        if (petVar.Plate < petVar.Max_Plate) // Add food to Plate if not Full
-//        {
-//            petVar.Plate += 20.00f;
-//            if (petVar.Plate > petVar.Max_Plate)
-//            {
-//                petVar.Plate = petVar.Max_Plate;
-//            }
-//        }
-//        else // Plate Full inform user
-//        {
-//            petVar.Plate = petVar.Max_Plate;
-//            std::cout << "Plate Full" << std::endl;
-//        }
-//    }
-//}
-
 
 // If Plate has Food - Eat and fill Stomach
-void food_dish::Eater(food_dish& obj) // 
+void food_dish::Eater( food_dish& dobj) // 
 {
-    if (petvars_obj.ALIVE == true)
+    if (pet_manager_obj->petVar.ALIVE == true)
     {
-        if (obj.dish_current > obj.dish_min && petvars_obj.Hunger > petvars_obj.Def_Hunger && petvars_obj.Stomach < petvars_obj.Stomach_Max) // If Plate has food AND Hungry
+    if (dobj.dish_current > dobj.dish_min && pet_manager_obj->petVar.Hunger > pet_manager_obj->petVar.Def_Hunger && pet_manager_obj->petVar.Stomach < pet_manager_obj->petVar.Stomach_Max)
         {
-            obj.dish_current -= 0.03f; // Reduce Food available to eat 3f max 0/3
-            petvars_obj.Stomach += 0.3f; // Increase Ingested Calories // 
+            dobj.dish_current -= 0.03f; // Reduce Food available to eat 3f max 0/3
+            pet_manager_obj->petVar.Stomach += 0.3f; // Increase Ingested Calories // 
         }
         else
         {
@@ -210,7 +188,7 @@ void Pet_Manager::Digester()
         }
         if (petVar.Digested > petVar.Digested_Min)
         {
-            petVar.Digested -= 0.006f;
+            petVar.Digested -= 0.01f;
 
             if (petVar.Digested < petVar.Digested_Min)
             {
@@ -218,7 +196,7 @@ void Pet_Manager::Digester()
             }
             if (petVar.Health < petVar.Max_Health)
             {
-                petVar.Health += 0.01f;
+                petVar.Health += 0.02f;
             }
             if (petVar.Starv > petVar.Def_Starv && petVar.Digested > petVar.Digested_Min)
             {
@@ -229,11 +207,6 @@ void Pet_Manager::Digester()
         {
             petVar.Hunger += 0.025f;
         }
-    }
-    else
-    {
-        // cant feed an dead pet
-        petVar.ALIVE = false;
     }
 
 }
@@ -328,7 +301,7 @@ void Pet_Manager::H2OProcessor()
             }
             if (petVar.Thirst > petVar.Def_Thirst)
             {
-                petVar.Thirst -= 0.010f;
+                petVar.Thirst -= 0.10f;
                 if (petVar.Thirst < petVar.Def_Thirst)
                 {
                     petVar.Thirst = petVar.Def_Thirst;
@@ -345,7 +318,7 @@ void Pet_Manager::H2OProcessor()
             }
             if (petVar.Health < petVar.Max_Health)
             {
-                petVar.Health += 0.01f;
+                petVar.Health += 0.10f;
             }
             if (petVar.Dehy > petVar.Dehy_Min && petVar.Processed > petVar.Processed_Min)
             {
@@ -404,9 +377,9 @@ void Pet_Manager::addAge()
 bool Pet_Manager::pet_death(bool& show, const char cause_of_death) // add remove text after a few seconds
 {
     ImGui::Begin("Report");
-    ImGui::Text(petvars_obj.pet_name);
+    ImGui::Text(petVar.pet_name);
     ImGui::SameLine(27.7f, NULL);
-    ImGui::Text(petvars_obj.cause_of_death);
+    ImGui::Text(petVar.cause_of_death);
     ImGui::End();
     return !show;
 }

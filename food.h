@@ -6,13 +6,17 @@ class food_data
 {
 public:
 	
+	char food_name[100] = "void \0";
 	double hunger_reduction = 0;
-	int health_restore = 10;
-	int digestion_time = 5;
-	int dish_fill = 50;
-
+	int health_restore = 0;
+	int digestion_time = 0;
+	int dish_fill = 0;
 };
 
+
+// why u wana save food ? // Don't need to// 
+// Originally I wanted to avoid initialising variables in code, for practice
+// bret pratice u should always init ur variables// sure, but say I want to balance, balance , init to 0 , load from database ur value // ok
 class food_menu
 {
 
@@ -32,7 +36,7 @@ class food_dish
 public:
 
 	void Eater(food_dish& obj);
-	bool food_list(bool& show);
+	bool food_list( bool& show);
 	float dish_min = 0.0f;
 	float dish_max = 100.0f;
 	float dish_current = 0.0f;
@@ -41,12 +45,13 @@ public:
 	bool dish_full(bool& show);
 	void Update();
 
-	const char* food_empty[1] = { "has no food!" };
+	const char* food_empty = { "has no food!" };
 	food_menu food_menu_obj;
+
 };
 
 
-class food_manager
+class food_manager  
 {
 public:
 	food_menu food_menu_obj;
@@ -57,6 +62,4 @@ public:
 		SQLITE
 	};
 
-	bool Save_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
-	bool Load_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
 };

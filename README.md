@@ -17,6 +17,7 @@ Dependencies
 Features in this version
 ---------------------------
 - Feeding & Hunger
+- Multiple Food Types
 - Water & Thirst
 
 

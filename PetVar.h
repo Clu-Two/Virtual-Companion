@@ -4,8 +4,6 @@
 
 using PetVars = struct PetVars // How does this work, you've defined a new namespace?
 {
-    food_dish food_dish_obj;  // u will getting serror in this i think, not sure...
-
     char pet_name[100] = "Titus";
     char dish_full_error[24] = "hasn't finished eating!";
     char thirst_death[21] = "died of dehydration.";
@@ -73,7 +71,7 @@ using PetVars = struct PetVars // How does this work, you've defined a new names
     float Water_Stomach_Max = 100.0;
     float Processed = 0.0;
     float Processed_Min = 0.0;
-    float Processed_Max = 0.0;
+    float Processed_Max = 100.0;
 };
 // this will be saved to file , at any point u want ( in file raw method)
 // and load wen u want it to... restoring the saved values that was be saved with save func 
