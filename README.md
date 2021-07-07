@@ -7,8 +7,8 @@ It's a heavy work in progress, and in no way elegant in its current state.
 
 v0.5 changes:
 -------------
-*first attempt at adding visual representation of companion
-**image not loading, think its something to do with opengl 
+* first attempt at adding visual representation of companion
+** image not loading, think its something to do with opengl 
 
 ------------
 Dependencies
