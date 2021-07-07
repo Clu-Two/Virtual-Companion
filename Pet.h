@@ -15,6 +15,9 @@ public:
     PetVars petVar;
     food_dish food_dish_obj;
 
+
+
+
     void addAge();
 
     void Digester();

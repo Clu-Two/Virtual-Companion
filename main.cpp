@@ -11,10 +11,13 @@
 
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
 #include "imgui_internal.h"
+
 
 #include <fstream>
 #include <iostream>
@@ -48,13 +51,12 @@ int main(int argc, char** argv)
     sf::RenderWindow main_window;
     main_window.create(sf::VideoMode(315, 568), "Companion", sf::Style::None);
     main_window.setVerticalSyncEnabled(true);
-    main_window.setFramerateLimit(60); // Spped of display refresh and stats update
-    sf::Color Transparent;
+
     //
     main_window.resetGLStates(); // call it if you only draw ImGui. Otherwise not needed.
     ImGui::SFML::Init(main_window, false);
 
-    lifestats(NULL);
+    //lifestats(NULL);
     loadfonts();
     //sf::CircleShape shape(300.f);
     //shape.setPosition(10, 30);
@@ -102,7 +104,7 @@ int main(int argc, char** argv)
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(315, 568));
-        if (ImGui::Begin("Virtual Companion", NULL, main_window_style)) // begin window
+        if (ImGui::Begin("Virtual Companion")) // begin window
         {
             if (ImGui::BeginMenuBar())
             {
@@ -221,6 +223,30 @@ int main(int argc, char** argv)
             sprintf_s(water_bowl_buf, "%.0f/%.0f%%", (pet_manager_obj->petVar.Water_Bowl), pet_manager_obj->petVar.Max_Water_Bowl);
             ProgressBar_Vertical((pet_manager_obj->petVar.Water_Bowl / pet_manager_obj->petVar.Max_Water_Bowl), ImVec2(50.0f, 250.0f), water_bowl_buf);
 
+            ImGui::SameLine();
+            
+            sf::Color Transparent = { 0,0,0,100 };
+            sf::Texture idle;
+            sf::Texture hungry;
+            sf::Texture eating;
+            sf::Texture starving;
+            sf::Texture f;
+ 
+
+            hungry.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\hungry.png");
+            eating.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\eating.png");
+            starving.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\starving.png");
+            f.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\f.png");
+            //idle.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\idle copy.jpg");
+            idle.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\idle.png");
+            
+            //ImGui::Text("IMAGE LOAD ERROR");
+            
+            ImGui::SameLine();
+            sf::Vector2f image_size(128.0f,128.0f);
+            ImGui::Image(idle, image_size, Transparent);
+    
+
             // Button to make food available
             //if (ImGui::Button("Replenish Food"))
             //{
@@ -268,7 +294,7 @@ int main(int argc, char** argv)
 
         ImGui::End();
 
-        lifestats(NULL);
+        //lifestats(NULL);
 
         // Timer
         if(Clock.getElapsedTime().asSeconds() >= 0.015f) 

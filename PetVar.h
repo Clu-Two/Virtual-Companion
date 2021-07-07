@@ -10,6 +10,8 @@ using PetVars = struct PetVars // How does this work, you've defined a new names
     char starv_death[19] = "died of stavation.";
     char cause_of_death[6] = "error";
 
+
+
     // Living
     float Age = 0.0;
     bool ALIVE = true;
