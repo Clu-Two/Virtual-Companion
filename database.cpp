@@ -1,6 +1,4 @@
-
-#include "Pet.h"
-#include "food.h"
+#pragma once;
 
 #include <fstream>
 #include <iostream>
@@ -9,7 +7,9 @@
 #include <stdarg.h>
 #include <sqlite3.h>
 
-extern Pet_Manager* pet_manager_obj; // MyRawPointer 
+#include "Pet.h"
+
+Pet_Manager pet_manager_obj; // MyRawPointer 
 
 int callback(void* NotUsed, int argc, char** argv, char** azColName) 
 { 
@@ -33,14 +33,14 @@ const char* sqlstatement(const char* format, ...)
     return str;
 }
 
-bool Save_sql3(const char* sz_filename, PetVars pobj, food_dish fobj) // empty soo no sql save
+bool Save_sql3(const char* sz_filename, Pet_Manager pobj, food_manager fobj)
 {
     char* sv_error;
 
     sqlite3* master_db;
     int rc = sqlite3_open_v2(sz_filename, &master_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
 
-    rc = sqlite3_exec(master_db, "INSERT INTO iVariables ('Stat') WHERE iv_Name = 'Health';", NULL, &pobj.Health, &sv_error); // I'm guessing this will insert 1.0 into healthyes
+    rc = sqlite3_exec(master_db, "INSERT INTO iVariables ('Stat') WHERE iv_Name = 'Health';", NULL, &pobj.Health, &sv_error);
     //sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values ('Hunger', '1.0');", NULL, NULL, &sv_error);
     //sqlite3_exec(master_db, "INSERT INTO iVariables (iv_Name, Stat) values ('Health', '1.0');", NULL, NULL, &sv_error);
 
@@ -50,7 +50,7 @@ bool Save_sql3(const char* sz_filename, PetVars pobj, food_dish fobj) // empty s
 
 
 // PetVars
-bool Load_sql3(const char* sz_filename, PetVars& pobj, food_dish& fobj) // can I call this at program start
+bool Load_sql3(const char* sz_filename, Pet_Manager& pobj, food_manager& fobj)
 {
 
     char* dbl_error;
@@ -165,13 +165,12 @@ bool Load_sql3(const char* sz_filename, PetVars& pobj, food_dish& fobj) // can I
     return (rc == SQLITE_OK);
 }
 
+//Create Database
 bool Make_sql3(const char* sz_filename)
 {
     char* cr_error;
     //int bDB_Ok;
     sqlite3* master_db;
-
-    //Create Database
 
     int rc = sqlite3_open_v2(sz_filename, &master_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
     if ( rc == SQLITE_OK)
@@ -269,11 +268,8 @@ bool Pet_Manager::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::
             std::ofstream inFile{ sz_filename, std::ios::out /*| std::ios::binary*/ };
             if (inFile.good())
             {
-                inFile << petVar.Age << "\n";
-                inFile << food_dish_obj.dish_current << "\n"; // as txt // I put all variables here? yes and it wil lsave as txt 
-
-                //inFile.write(reinterpret_cast<char*>(&petVar), sizeof(PetVars));
-                //inFile.write(reinterpret_cast<char*>(&food_dish_obj), sizeof(food_dish));
+                inFile << Age << "\n";
+                inFile << food_manager_obj.dish_current << "\n";
                 result = true;
             }
             inFile.close();
@@ -281,10 +277,10 @@ bool Pet_Manager::Save_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::
 
         case DB_Type::SQLITE:
         {
-            if(!Save_sql3(sz_filename, petVar, food_dish_obj))
+            if(!Save_sql3(sz_filename, pet_manager_obj, food_manager_obj))
             {
                 Make_sql3(sz_filename);
-                if (!Save_sql3(sz_filename, petVar, food_dish_obj))
+                if (!Save_sql3(sz_filename, pet_manager_obj, food_manager_obj))
                 {
                     throw "error save/create db !!";
                 }
@@ -316,10 +312,10 @@ bool Pet_Manager::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::
 
     case DB_Type::SQLITE:
     {
-        if (!Load_sql3(sz_filename, petVar, food_dish_obj))
+        if (!Load_sql3(sz_filename, pet_manager_obj, food_manager_obj))
         {
             Make_sql3(sz_filename);
-            if (!Load_sql3(sz_filename, petVar, food_dish_obj))
+            if (!Load_sql3(sz_filename, pet_manager_obj, food_manager_obj))
             {
                 throw "error save/create db !!";
             }
@@ -331,69 +327,69 @@ bool Pet_Manager::Load_DB(const char* sz_filename, DB_Type db_type /*= DB_Type::
     return result;
 }
 
-#ifdef _DEBUG
-void Pet_Manager::logDB_CMD()
-{
-    PetVars petVar;
-    printf("\x1B[2J\x1B[H");  // clear console screen
-
-    printf_s("\n\nStats: \n");
-    printf_s("\n%.2f Age \n", petVar.Age);
-
-    printf_s("%.2f Health \n", petVar.Health);
-    printf_s("%.2f Min_Health \n", petVar.Min_Health);
-    printf_s("%.2f Max_Health \n", petVar.Max_Health);
-
-    printf_s("%.2f Hunger \n", petVar.Hunger);
-    printf_s("%.2f Def_Hunger \n", petVar.Def_Hunger);
-    printf_s("%.2f Max_Hunger \n", petVar.Max_Hunger);
-    printf_s("%.2f Def_Hunger_Rate \n", petVar.Def_Hunger_Rate);
-
-    printf_s("%.2f Starvation \n", petVar.Starv);
-    printf_s("%.2f Def_Starv \n", petVar.Def_Starv);
-    printf_s("%.2f Max_Starv \n", petVar.Max_Starv);
-    printf_s("%.2f Def_Starv_Rate \n", petVar.Def_Starv_Rate);
-
-    printf_s("%.2f Stomach \n", petVar.Stomach);
-    printf_s("%.2f Stomach_Min \n", petVar.Stomach_Min);
-    printf_s("%.2f Stomach_Max \n", petVar.Stomach_Max);
-
-    printf_s("%.2f Digested \n", petVar.Digested);
-    printf_s("%.2f Digested_Min \n", petVar.Stomach_Min);
-    printf_s("%.2f Digested_Max \n", petVar.Digested_Max);
-
-    printf_s("%.2f Plate \n", petVar.Plate);
-    printf_s("%.2f Min_Plate \n", petVar.Min_Plate);
-    printf_s("%.2f Max_Plate \n", petVar.Max_Plate);
-
-    printf_s("%.2f Thirst \n", petVar.Thirst);
-    printf_s("%.2f Def_Thirst \n", petVar.Def_Thirst);
-    printf_s("%.2f Max_Thirst \n", petVar.Max_Thirst);
-    printf_s("%.2f Def_Thirst_Rate \n", petVar.Def_Thirst_Rate);
-
-    printf_s("%.2f Dehydration \n", petVar.Dehy);
-    printf_s("%.2f Dehy_Min \n", petVar.Dehy_Min);
-    printf_s("%.2f Dehy_Max \n", petVar.Dehy_Max);
-    printf_s("%.2f Def_Dehy_Rate \n", petVar.Def_Dehy_Rate);
-
-    printf_s("%.2f Water_Stomach \n", petVar.Water_Stomach);
-    printf_s("%.2f Water_Stomach_Min \n", petVar.Water_Stomach_Min);
-    printf_s("%.2f Water_Stomach_Max \n", petVar.Water_Stomach_Max);
-
-    printf_s("%.2f Processed \n", petVar.Processed);
-    printf_s("%.2f Processed_Min \n", petVar.Stomach_Min);
-    printf_s("%.2f Processed_Max \n", petVar.Processed_Max);
-
-    printf_s("%.2f Water_Bowl \n", petVar.Water_Bowl);
-    printf_s("%.2f Min_Water_Bowl \n", petVar.Min_Water_Bowl);
-    printf_s("%.2f Max_Water_Bowl \n", petVar.Max_Water_Bowl);
-
-    printf_s("Is the pet alive? %s \n", (petVar.ALIVE ? "Yes" : "The RSPCA Has been Notified.") );
-}
-
-#else
-void StatVars::logDB_CMD(){}
-#endif
+//#ifdef _DEBUG
+//void Pet_Manager::logDB_CMD()
+//{
+//    PetVars petVar;
+//    printf("\x1B[2J\x1B[H");  // clear console screen
+//
+//    printf_s("\n\nStats: \n");
+//    printf_s("\n%.2f Age \n", petVar.Age);
+//
+//    printf_s("%.2f Health \n", petVar.Health);
+//    printf_s("%.2f Min_Health \n", petVar.Min_Health);
+//    printf_s("%.2f Max_Health \n", petVar.Max_Health);
+//
+//    printf_s("%.2f Hunger \n", petVar.Hunger);
+//    printf_s("%.2f Def_Hunger \n", petVar.Def_Hunger);
+//    printf_s("%.2f Max_Hunger \n", petVar.Max_Hunger);
+//    printf_s("%.2f Def_Hunger_Rate \n", petVar.Def_Hunger_Rate);
+//
+//    printf_s("%.2f Starvation \n", petVar.Starv);
+//    printf_s("%.2f Def_Starv \n", petVar.Def_Starv);
+//    printf_s("%.2f Max_Starv \n", petVar.Max_Starv);
+//    printf_s("%.2f Def_Starv_Rate \n", petVar.Def_Starv_Rate);
+//
+//    printf_s("%.2f Stomach \n", petVar.Stomach);
+//    printf_s("%.2f Stomach_Min \n", petVar.Stomach_Min);
+//    printf_s("%.2f Stomach_Max \n", petVar.Stomach_Max);
+//
+//    printf_s("%.2f Digested \n", petVar.Digested);
+//    printf_s("%.2f Digested_Min \n", petVar.Stomach_Min);
+//    printf_s("%.2f Digested_Max \n", petVar.Digested_Max);
+//
+//    printf_s("%.2f Plate \n", petVar.Plate);
+//    printf_s("%.2f Min_Plate \n", petVar.Min_Plate);
+//    printf_s("%.2f Max_Plate \n", petVar.Max_Plate);
+//
+//    printf_s("%.2f Thirst \n", petVar.Thirst);
+//    printf_s("%.2f Def_Thirst \n", petVar.Def_Thirst);
+//    printf_s("%.2f Max_Thirst \n", petVar.Max_Thirst);
+//    printf_s("%.2f Def_Thirst_Rate \n", petVar.Def_Thirst_Rate);
+//
+//    printf_s("%.2f Dehydration \n", petVar.Dehy);
+//    printf_s("%.2f Dehy_Min \n", petVar.Dehy_Min);
+//    printf_s("%.2f Dehy_Max \n", petVar.Dehy_Max);
+//    printf_s("%.2f Def_Dehy_Rate \n", petVar.Def_Dehy_Rate);
+//
+//    printf_s("%.2f Water_Stomach \n", petVar.Water_Stomach);
+//    printf_s("%.2f Water_Stomach_Min \n", petVar.Water_Stomach_Min);
+//    printf_s("%.2f Water_Stomach_Max \n", petVar.Water_Stomach_Max);
+//
+//    printf_s("%.2f Processed \n", petVar.Processed);
+//    printf_s("%.2f Processed_Min \n", petVar.Stomach_Min);
+//    printf_s("%.2f Processed_Max \n", petVar.Processed_Max);
+//
+//    printf_s("%.2f Water_Bowl \n", petVar.Water_Bowl);
+//    printf_s("%.2f Min_Water_Bowl \n", petVar.Min_Water_Bowl);
+//    printf_s("%.2f Max_Water_Bowl \n", petVar.Max_Water_Bowl);
+//
+//    printf_s("Is the pet alive? %s \n", (petVar.ALIVE ? "Yes" : "The RSPCA Has been Notified.") );
+//}
+//
+//#else
+//void StatVars::logDB_CMD(){}
+//#endif
 
 
 

@@ -1,14 +1,14 @@
-Virtual Companion Alpha v0.5
+Virtual Companion Alpha v0.6
 ============================
 A simple virtual pet, essentially a stat management game.
 Uses ImGui for the interface.
 
 It's a heavy work in progress, and in no way elegant in its current state.
 
-v0.5 changes:
+v0.6 changes:
 -------------
-* first attempt at adding visual representation of companion
-* Issue: image not loading, think its something to do with opengl 
+* merged some files to make things easier
+* tweaked the layout
 
 ------------
 Dependencies
