@@ -1,14 +1,27 @@
 #pragma once
 
+#include <SFML/Graphics/Texture.hpp>
+
 class food_data
 {
 public:
 
     char food_name[100] = "void \0";
-    double hunger_reduction = 0;
+    float hunger_reduction = 0;
     int health_restore = 0;
     int digestion_time = 0;
     int dish_fill = 0;
+};
+
+class potato : public food_data
+{
+public:
+
+    char food_name[100] = "Potato";
+    float hunger_reduction = 40.0f;
+    int health_restore = 40.0f;
+    int digestion_time = 20.0f;
+    int fill = 2.0f;
 };
 
 class food_menu
@@ -16,12 +29,7 @@ class food_menu
 
 public:
 
-    food_data potato;
-    food_data pizza;
-    food_data carrot;
-    food_data salad;
-    food_data doughnut;
-    food_data brownie;
+    food_data potato, pizza, carrot, salad, doughnut, brownie;
 };
 
 
@@ -36,20 +44,19 @@ public:
         SQLITE
     };
 
-    void Eater(food_manager& obj);
+    void Eater();
     bool food_list(bool& show);
     float dish_min = 0.0f;
     float dish_max = 100.0f;
     float dish_current = 0.0f;
-    int dish_fill(food_data& obj);
+    int dish_fill(int fill, int digestion_time);
 
     bool dish_full(bool& show);
 
     const char* food_empty = { "has no food!" };
-    //food_menu food_menu_obj;
 
+   void food_updater();
 };
-
 extern const char* sqlstatement(const char* format, ...);
 
 class Pet_Manager
@@ -58,13 +65,14 @@ public:
     std::string pet_name = "N/A";
 
     std::string status = "N/A";
-    std::string status_hungry = "Hunry";
+    std::string status_hungry = "Hungry";
     std::string status_thirsty = "Thirsty";
     std::string status_dead = "Deceased";
     std::string dish_full_error = "hasn't finished eating!";
     std::string thirst_death = "died of dehydration.";
     std::string starv_death = "died of stavation.";
     std::string cause_of_death= "error";
+
 
     // Living
     float Age = 0.0;
@@ -133,8 +141,6 @@ public:
         SQLITE
     };
 
-  
-    food_manager food_manager_obj;
 
     void addAge();
 
@@ -145,7 +151,6 @@ public:
     void Drinker();
     void H2OProcessor();
     void DehyManager();
-
     bool pet_death(bool& show, std::string cause_of_death);
 
     //void logDB_CMD();
@@ -155,11 +160,10 @@ public:
 
     bool Save_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
     bool Load_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
+    bool Make_sql3(const char* sz_filename);
+    bool Load_sql3(const char* sz_filename, Pet_Manager& pobj, food_manager& food_manager_obj);
 };
-
-
-//extern Pet_Manager pet_manager_obj; // MyRawPointer 
-
+extern food_manager *selected_food;
 
 
 
