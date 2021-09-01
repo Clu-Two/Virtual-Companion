@@ -1,14 +1,13 @@
-Virtual Companion Alpha v0.6
+Virtual Companion Alpha v0.65
 ============================
 A simple virtual pet, essentially a stat management game.
 Uses ImGui for the interface.
+Heavy work in progress.
 
-It's a heavy work in progress, and in no way elegant in its current state.
-
-v0.6 changes:
+v0.65 changes:
 -------------
-* merged some files to make things easier
-* tweaked the layout
+* fixed food and feeding not working
+* images of pet now load and change depending on conditions
 
 ------------
 Dependencies
@@ -24,5 +23,6 @@ Features in this version
 - Feeding & Hunger
 - Multiple Food Types
 - Water & Thirst
+- Visual Representaion
 
 
