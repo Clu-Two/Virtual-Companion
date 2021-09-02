@@ -5,38 +5,17 @@
 class food_data
 {
 public:
-
-    char food_name[100] = "void \0";
-    float hunger_reduction = 0;
-    int health_restore = 0;
-    int digestion_time = 0;
-    int dish_fill = 0;
+    const char* food_label_arr[6] = { "Potato", "Pizza","Carrot", "Salad", "Doughnut", "Brownie" };
+    float hunger_reduction[6] = { 24.75,37.5,15,28.5,30,30 };
+    int health_restore[6] = {21,25,25,46,15,15};
+    int digestion_time[6] = { 165,250,100,190,225,225 };
+    int dish_fill[6] = { 30,60,20,40,50,50 };
 };
-
-class potato : public food_data
-{
-public:
-
-    char food_name[100] = "Potato";
-    float hunger_reduction = 40.0f;
-    int health_restore = 40.0f;
-    int digestion_time = 20.0f;
-    int fill = 2.0f;
-};
-
-class food_menu
-{
-
-public:
-
-    food_data potato, pizza, carrot, salad, doughnut, brownie;
-};
-
 
 class food_manager
 {
 public:
-    food_menu food_menu_obj;
+    food_data food_data_obj;
 
     enum class DB_Type
     {
@@ -76,6 +55,7 @@ public:
 
     // Living
     float Age = 0.0;
+    float age_track = 0.0;
     bool ALIVE = true;
     bool AWAKE = true;
 
@@ -113,9 +93,10 @@ public:
 
     //// Water
     // Water Bowl
+    float Add_Water = 25.0;
     float Water_Bowl = 0.0;
     float Min_Water_Bowl = 0.0;
-    float Max_Water_Bowl = 150.0;
+    float Max_Water_Bowl = 100.0;
     // Thirst
     float Thirst = 0.0;
     float Def_Thirst = 0.0;
@@ -158,10 +139,10 @@ public:
     void Update();
 public:
 
-    bool Save_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
-    bool Load_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
-    bool Make_sql3(const char* sz_filename);
-    bool Load_sql3(const char* sz_filename, Pet_Manager& pobj, food_manager& food_manager_obj);
+    //bool Save_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
+    //bool Load_DB(const char* sz_filename, DB_Type db_type = DB_Type::FILE);
+    //bool Make_sql3(const char* sz_filename);
+    //bool Load_sql3(const char* sz_filename, Pet_Manager& pobj, food_manager& food_manager_obj);
 };
 extern food_manager *selected_food;
 

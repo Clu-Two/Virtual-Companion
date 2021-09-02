@@ -19,6 +19,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -38,7 +39,6 @@ Pet_Manager::DB_Type SaveFormat = Pet_Manager::DB_Type::FILE;
     int selected = 0;
     Pet_Manager pet1, pet2, pet3, pet4, *selected_pet;
     food_manager food1, food2, food3, food4, *selected_food;
-    potato potato_obj;  
 
 int main(int argc, char** argv)
 {
@@ -55,14 +55,16 @@ int main(int argc, char** argv)
     sf::Clock deltaClock, Clock;
 
     sf::Color Transparent = { 0,0,0,100 };
-    sf::Texture idle, hungry, eating, starving, f;
+    sf::Texture idle, hungry, eating, starving, f, minushp;
     sf::Texture* currentTex = NULL;
  
     hungry.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\hungry.png");
     eating.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\eating.png");
-    starving.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\starving.png");
+    minushp.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\starving.png");
     f.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\f.png");
     idle.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\idle.png");
+    starving.loadFromFile("D:\\Clu 2\\Desktop\\Work\\Programming Projects\\vP\\vs project files\\IMGui_Companion_mu_v0.1\\assets\\images\\minushp.png");
+
     currentTex = &idle;
 
     static int selItem = 0;
@@ -130,13 +132,13 @@ int main(int argc, char** argv)
                     {
                         if (ImGui::MenuItem("Save"))
                         {
-                            selected_pet->Save_DB(items[selItem], SaveFormat);
+                            //selected_pet->Save_DB(items[selItem], SaveFormat);
                         }
                         ImGui::EndMenu();
                     }
                     if (ImGui::MenuItem("Load"))
                     {
-                        selected_pet->Load_DB(items[selItem], SaveFormat);
+                        //selected_pet->Load_DB(items[selItem], SaveFormat);
                     }
                     if (ImGui::MenuItem("Exit"))
                     {
@@ -187,41 +189,36 @@ int main(int argc, char** argv)
             //}
 
             // Age
-            ImGui::Text("Age: %.1f", selected_pet->Age);
+            ImGui::Text("Age: %.0f", selected_pet->Age);
             if (selected_pet->ALIVE == false)
             {
                 ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x * 10);
                 if (ImGui::Button("Revive"))
                 {
+                    //newPet();
                 }
             }
            
-             // Health
+            // Health
             char health_buf[64];
-            sprintf_s(health_buf, "%.1f/%.1f%%", (selected_pet->Health), selected_pet->Max_Health);
+            sprintf_s(health_buf, "%.0f/%.0f%%", (selected_pet->Health), selected_pet->Max_Health);
             selected_pet->Health <= 50.0f ? ImGui::GetColorU32(ImGuiCol_TextSelectedBg) : ImGui::GetColorU32(ImGuiCol_TitleBgActive);
             ProgressBar_Alt((selected_pet->Health / selected_pet->Max_Health), ImVec2(250.0f, 0.0f), "Health", health_buf, selected_pet->Health);
 
             // Hunger
             char hunger_buf[64];
-            sprintf_s(hunger_buf, "%.1f/%.1f%%", (selected_pet->Hunger), selected_pet->Max_Hunger);
+            sprintf_s(hunger_buf, "%.0f/%.0f%%", (selected_pet->Hunger), selected_pet->Max_Hunger);
             ProgressBar_Alt((selected_pet->Hunger / selected_pet->Max_Hunger), ImVec2(250.0f, 0.0f), "Hunger", hunger_buf, selected_pet->Hunger);
 
             // Thirst
             char thirst_buf[64];
-            sprintf_s(thirst_buf, "%.1f/%.1f%%", (selected_pet->Thirst), selected_pet->Max_Thirst);
+            sprintf_s(thirst_buf, "%.0f/%.0f%%", (selected_pet->Thirst), selected_pet->Max_Thirst);
             ProgressBar_Alt((selected_pet->Thirst / selected_pet->Max_Thirst), ImVec2(250.0f, 0.0f), "Thirst", thirst_buf, selected_pet->Thirst);
 
-            //// Food Bowl
-            //char food_buf[64];
-            //sprintf_s(food_buf, "%.1f/%.1f%%", (selected_pet.Plate), selected_pet.Max_Plate);
-            //ImGui::ProgressBar3((selected_pet.Plate / selected_pet.Max_Plate), ImVec2(50.0f, 250.0f), food_buf);
-
-            // New Food Dish
+            // Food Dish
             char food_buf[64];
             sprintf_s(food_buf, "%.0f/%.0f%%", (selected_food->dish_current), selected_food->dish_max);
             ProgressBar_Vertical((selected_food->dish_current / selected_food->dish_max), ImVec2(50.0f, 250.0f), food_buf);
-
             ImGui::SameLine();
 
             // Water Dish
@@ -250,6 +247,10 @@ int main(int argc, char** argv)
                 if (selected_pet->Starv > 0.0 || selected_pet->Dehy > 0.0)
                 {
                     *currentTex = starving;
+                }
+                if (selected_pet->Health <= 50.0)
+                {
+                    *currentTex = minushp;
                 }
             }
             if (!selected_pet->ALIVE)
@@ -285,7 +286,7 @@ int main(int argc, char** argv)
         ImGui::End();
 
         // Timer
-        if(Clock.getElapsedTime().asSeconds() >= 0.015f) 
+        if(Clock.getElapsedTime().asSeconds() >= 0.005f) 
         {
            for (int i = 0; i < 4; i++)
            {
@@ -331,95 +332,21 @@ void food_manager::food_updater()
 bool food_manager::food_list(bool& show)
 {
     static bool x = false;
-    std::vector<food_data> {potato_obj};
     ImGui::Begin("Todays Menu", NULL, secondary_window);
     for (int i = 0; i < 6; i++)
     {
-
-
-    }
-    if (ImGui::Button(potato_obj.food_name))
-    {
-        if (dish_current < dish_max)
+        if (ImGui::Button(food_data_obj.food_label_arr[i]))
         {
-            dish_fill(potato_obj.fill, potato_obj.digestion_time);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
+            if (dish_current < dish_max)
+            {
+                dish_fill(food_data_obj.dish_fill[i], food_data_obj.digestion_time[i]);
+            }
+            if (dish_current >= dish_max)
+            {
+                x = !x;
+            }
         }
     }
-    if (ImGui::Button(potato_obj.food_name))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(potato_obj.fill, potato_obj.digestion_time);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }
-    //ImGui::Text("%d", potato_obj.digestion_time);
-    //ImGui::Text("%d", potato_obj.health_restore);
-    //ImGui::Text("%d", potato_obj.hunger_reduction);
-    //ImGui::Text("%d", potato_obj.dish_fill);
-    //ImGui::Text("%d", potato_obj.food_name);
- /*   if (ImGui::Button("Pizza Slice"))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(food_menu_obj.pizza);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }
-    if (ImGui::Button("Carrot"))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(food_menu_obj.carrot);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }
-    if (ImGui::Button("Salad"))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(food_menu_obj.salad);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }
-    if (ImGui::Button("Doughnut"))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(food_menu_obj.doughnut);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }
-    if (ImGui::Button("Brownie"))
-    {
-        if (dish_current < dish_max)
-        {
-            dish_fill(food_menu_obj.brownie);
-        }
-        if (dish_current >= dish_max)
-        {
-            x = !x;
-        }
-    }*/
     if (x)
     {
         dish_full(x);
@@ -434,8 +361,14 @@ bool food_manager::food_list(bool& show)
 
 int food_manager::dish_fill(int dish_fill, int digestion_time)
 {
-    selected_food->dish_current += dish_fill;
-    digestion_time += digestion_time;
+    float dish_space = dish_max - dish_current;
+    if (dish_space >= dish_fill)
+    {
+        selected_food->dish_current += dish_fill;
+        digestion_time += digestion_time;
+    }
+    //ImGui::Text("Can't add any more food!");
+
     return digestion_time;
 }
 
@@ -483,15 +416,15 @@ void Pet_Manager::Digester()
     {
         if (Stomach > Stomach_Min && Digested < Digested_Max) // If ingested calories > 0 some not good here
         {
-            Stomach -= 0.025f;
-            Digested += 0.025f;
+            Stomach -= 0.016f;
+            Digested += 0.016f;
             if (Stomach < Stomach_Min)
             {
                 Stomach = Stomach_Min;
             }
             if (Hunger > Def_Hunger) // Reduce Hunger and Starvation when Digesting
             {
-                Hunger -= 0.02f;
+                Hunger -= 0.05f;
                 if (Hunger < Def_Hunger)
                 {
                     Hunger = Def_Hunger;
@@ -500,19 +433,19 @@ void Pet_Manager::Digester()
         }
         if (Digested > Digested_Min)
         {
-            Digested -= 0.01f;
+            Digested -= 0.005f;
 
             if (Digested < Digested_Min)
             {
                 Digested = Digested_Min;
             }
-            if (Health < Max_Health)
+            if (Health != Max_Health && Health < Max_Health)
             {
-                Health += 0.02f;
+                Health += 0.005f;
             }
             if (Starv > Def_Starv && Digested > Digested_Min)
             {
-                Starv -= 0.04f;
+                Starv -= 0.05f;
             }
         }
         if (Digested <= Digested_Min)
@@ -536,7 +469,7 @@ void Pet_Manager::StarvManager() // Starv Manager
         if (Hunger >= Max_Hunger)
         {
             Hunger = Max_Hunger;
-            Starv += 0.01f;
+            Starv += 0.1f;
         }
         if (Starv >= Max_Starv)
         {
@@ -555,17 +488,13 @@ void Pet_Manager::Hydrater()
 {
     if (ALIVE == true)
     {
-        if (Water_Bowl < Max_Water_Bowl) // Add Water to Bowl if not Full
+        float water_space = Max_Water_Bowl - Water_Bowl;
+        if (water_space >= Add_Water) // Add Water to Bowl if not Full
         {
-            Water_Bowl += 20.0f;
-            if (Water_Bowl > Max_Water_Bowl)
-            {
-                Water_Bowl = Max_Water_Bowl;
-            }
+            Water_Bowl += Add_Water;
         }
         else // Bowl Full inform user
         {
-            Water_Bowl = Max_Water_Bowl;
             std::cout << "Water Bowl Full" << std::endl;
         }
     }
@@ -583,8 +512,8 @@ void Pet_Manager::Drinker()
             {
                 if (Water_Stomach < Water_Stomach_Max)
                 {
-                    Water_Bowl -= 0.10f;
-                    Water_Stomach += 0.10f;
+                    Water_Bowl -= 0.02f;
+                    Water_Stomach += 0.02f;
                 }
                 else
                 {
@@ -602,15 +531,15 @@ void Pet_Manager::H2OProcessor()
     {
         if (Water_Stomach > Water_Stomach_Min && Processed < Processed_Max)
         {
-            Water_Stomach -= 0.10f;
-            Processed += 0.10f;
+            Water_Stomach -= 0.1f;
+            Processed += 0.1f;
             if (Water_Stomach < Water_Stomach_Min)
             {
                 Water_Stomach = Water_Stomach_Min;
             }
             if (Thirst > Def_Thirst)
             {
-                Thirst -= 0.10f;
+                Thirst -= 0.07f;
                 if (Thirst < Def_Thirst)
                 {
                     Thirst = Def_Thirst;
@@ -619,7 +548,7 @@ void Pet_Manager::H2OProcessor()
         }
         if (Processed > Processed_Min)
         {
-            Processed -= 0.005f;
+            Processed -= 0.05f;
 
             if (Processed < Processed_Min)
             {
@@ -627,16 +556,16 @@ void Pet_Manager::H2OProcessor()
             }
             if (Health < Max_Health)
             {
-                Health += 0.10f;
+                Health += 0.1f;
             }
             if (Dehy > Dehy_Min && Processed > Processed_Min)
             {
-                Dehy -= 0.06f;
+                Dehy -= 0.6f;
             }
         }
         if (Processed <= Processed_Min)
         {
-            Thirst += 0.07f;
+            Thirst += 0.35f;
         }
     }
     else
@@ -660,7 +589,7 @@ void Pet_Manager::DehyManager()
         if (Thirst >= Max_Thirst)
         {
             Thirst = Max_Thirst;
-            Dehy += 0.03f;
+            Dehy += 0.3f;
         }
         if (Dehy >= Dehy_Max)
         {
@@ -679,15 +608,20 @@ void Pet_Manager::addAge()
 {
     if (ALIVE == true)
     {
-        Age += 0.01f;
+        age_track += 0.0001;
+        if (age_track >= 1.0)
+        {
+            Age += 1.0;
+            age_track = 0.0;
+        }
     }
 }
 
 bool Pet_Manager::pet_death(bool& show, std::string cause_of_death) // add remove text after a few seconds
 {
-    ImGui::Begin("Report");
+    ImGui::Begin("Report", NULL, notification_popup);
     ImGui::Text(pet_name.c_str());
-    ImGui::SameLine(27.7f, NULL);
+    ImGui::SameLine();
     ImGui::Text(cause_of_death.c_str());
     ImGui::End();
     return !show;
