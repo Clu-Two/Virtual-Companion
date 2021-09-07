@@ -1,11 +1,22 @@
-Virtual Companion Alpha v0.7
+Virtual Companion Alpha v0.8
 ============================
 A simple virtual pet, essentially a stat management game.
+Track the project progress here: https://trello.com/b/dNvPpF1X/virtual-entity-alpha
 Uses ImGui for the interface.
 
 Notes: Currently most features working as intended.
-Next update will change the way the pet eats and drinks - instead of consuming food and water in fractions, larger chunks will be consumed to reflect bites.
-- will remove multiple pets also, so the user has less to manage.
+* fixed issue - pets will not live in the backgrouind and not just when actively selected.
+* issue - with Hunger and Thirst displaying Zero as a negtaive, caused by being a float.
+* issue - save and loading not working, intended until database is added back in.
+
+v0.8 changes:
+-------------
+* eating and drinking rates have been changed to more realistic variables (so it's more familiar for user).
+* the higher the hunger and thirst level, the faster they are consumed.
+* fixed Jor El, Zoidberg and Mr Biggles Worth eating Zoidbergs food.
+* added deeper stats progress bars for stomach, digestion, consumed water, and bladder.
+* changed progress bar colours.
+* some refactoring & restructuring.
 
 v0.7 changes:
 -------------
@@ -42,8 +53,9 @@ Dependencies
 * Sqlite 3
 
 ---------------------------
-Features in this version
+Features currently implemented
 ---------------------------
+- Ageing
 - Feeding & Hunger
 - Multiple Food Types
 - Water & Thirst

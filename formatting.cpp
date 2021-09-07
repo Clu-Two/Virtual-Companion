@@ -220,3 +220,28 @@ void lifestats(ImGuiStyle* life_stats)
                 ImGui::RenderTextWrapped(bb.Max, overlay, NULL, 50);
             //RenderTextClipped(bb.Max, bb.Min, overlay, NULL, &overlay_size, ImVec2(0.0f, 0.0f), &bb);
         }
+
+        void ProgressBar_Vertical_NoLabel(float fraction, const ImVec2& size_arg, ImU32 fill_color, ImU32 bk_color)
+        {
+            ImGuiWindow* window = ImGui::GetCurrentWindow();
+            if (window->SkipItems)
+                return;
+
+            ImGuiContext& g = *GImGui;
+            ImGuiStyle& style = g.Style;
+
+            ImVec2 pos = window->DC.CursorPos;
+            ImVec2 size = ImGui::CalcItemSize(size_arg, g.FontSize + style.FramePadding.y * 1.0f, ImGui::CalcItemWidth());
+            ImRect bb(pos + size, pos);
+            ImGui::ItemSize(size, style.FramePadding.y);
+            if (!ImGui::ItemAdd(bb, 0))
+                return;
+
+            // Render
+            fraction = ImSaturate(fraction);
+            ImGui::RenderFrame(bb.Min, bb.Max, bk_color, false, style.FrameRounding);
+            bb.Expand(ImVec2(-style.FrameBorderSize, -style.FrameBorderSize));
+            //const ImVec2 fill_br = ImVec2(ImLerp(bb.Min.x, bb.Max.x, fraction), bb.Max.y);
+
+            RenderRectFilledRangeV(window->DrawList, bb, fill_color, 0.0f, fraction, style.FrameRounding);
+        }

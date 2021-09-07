@@ -2,47 +2,12 @@
 
 #include <SFML/Graphics/Texture.hpp>
 
-class food_data
-{
-public:
-    const char* food_label_arr[6] = { "Potato", "Pizza","Carrot", "Salad", "Doughnut", "Brownie" };
-    float hunger_reduction[6] = { 24.75,37.5,15,28.5,30,30 };
-    int health_restore[6] = {21,25,25,46,15,15};
-    int digestion_time[6] = { 165,250,100,190,225,225 };
-    int dish_fill[6] = { 30,60,20,40,50,50 };
-};
-
-class food_manager
-{
-public:
-    food_data food_data_obj;
-
-    enum class DB_Type
-    {
-        FILE,
-        SQLITE
-    };
-
-    void Eater();
-    bool food_list(bool& show);
-    float dish_min = 0.0f;
-    float dish_max = 100.0f;
-    float dish_current = 0.0f;
-    int dish_fill(int fill, int digestion_time);
-
-    bool dish_full(bool& show);
-
-    const char* food_empty = { "has no food!" };
-
-   void food_updater();
-};
-extern const char* sqlstatement(const char* format, ...);
-
 class Pet_Manager
 {
+
+// Pet Variables
 public:
     std::string pet_name = "N/A";
-
     std::string status = "N/A";
     std::string status_hungry = "Hungry";
     std::string status_thirsty = "Thirsty";
@@ -51,7 +16,6 @@ public:
     std::string thirst_death = "died of dehydration.";
     std::string starv_death = "died of stavation.";
     std::string cause_of_death= "error";
-
 
     // Living
     float Age = 0.0;
@@ -89,7 +53,7 @@ public:
     float Stomach_Max = 100.0;
     float Digested = 0.0;
     float Digested_Min = 0.0;
-    float Digested_Max = 100.0;
+    float Digested_Max = 300.0;
 
     //// Water
     // Water Bowl
@@ -110,18 +74,31 @@ public:
     // Water Processing
     float Water_Stomach = 0.0;
     float Water_Stomach_Min = 0.0;
-    float Water_Stomach_Max = 100.0;
+    float Water_Stomach_Max = 200.0;
     float Processed = 0.0;
     float Processed_Min = 0.0;
     float Processed_Max = 100.0;
 
+
+// Food
 public:
+    const char* food_label_arr[6] = { "Potato", "Pizza","Carrot", "Salad", "Doughnut", "Brownie" };
+    float hunger_reduction[6] = { 24.75,37.5,15,28.5,30,30 };
+    int health_restore[6] = { 21,25,25,46,15,15 };
+    int digestion_time[6] = { 165,250,100,190,225,225 };
+    int dish_filler[6] = { 30,60,20,40,50,50 };
+
     enum class DB_Type
     {
         FILE,
         SQLITE
     };
 
+    float dish_min = 0.0f;
+    float dish_max = 100.0f;
+    float dish_current = 0.0f;
+
+    const char* food_empty = { "has no food!" };
 
     void addAge();
 
@@ -134,6 +111,53 @@ public:
     void DehyManager();
     bool pet_death(bool& show, std::string cause_of_death);
 
+    void Eater()
+    {
+        if (ALIVE == true)
+        {
+            float stomach_space = Stomach_Max - Stomach;
+            if (dish_current > dish_min && Hunger > 15.0f && Stomach < Stomach_Max)
+            {
+                if (Hunger > 30.0f)
+                {
+                    dish_current -= 0.2f;
+                    Stomach += 0.2f;
+                }
+                if (Hunger > 60.0f)
+                {
+                    dish_current -= 0.3f;
+                    Stomach += 0.3f;
+                }
+                if (Hunger > 90.0f)
+                {
+                    dish_current -= 0.4f;
+                    Stomach += 0.4f;
+                }
+                dish_current -= 0.1f; // Reduce Food available to eat 3f max 0/3
+                Stomach += 0.1f; // Increase Ingested Calories
+            }
+            if (Stomach >= Stomach_Max)
+            {
+                std::cout << "Companion cannot eat any more" << std::endl;
+            }
+        }
+    }
+
+    int dish_fill(int dish_fill, int digestion_time)
+    {
+        float dish_space = dish_max - dish_current;
+        static bool show = false;
+        if (dish_space >= dish_fill)
+        {
+            dish_current += dish_fill;
+            digestion_time += digestion_time;
+        }
+        //ImGui::Text("Can't add any more food!");
+        return digestion_time;
+    }
+
+    bool food_list(bool& show);
+
     //void logDB_CMD();
 public:
     void Update();
@@ -144,9 +168,9 @@ public:
     //bool Make_sql3(const char* sz_filename);
     //bool Load_sql3(const char* sz_filename, Pet_Manager& pobj, food_manager& food_manager_obj);
 };
-extern food_manager *selected_food;
+//extern food_manager *selected_food;
 
-
+extern const char* sqlstatement(const char* format, ...);
 
 
 
