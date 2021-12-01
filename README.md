@@ -1,4 +1,4 @@
-![preview](https://user-images.githubusercontent.com/80003435/144222928-9514edca-2cca-4f62-baac-37f4948dd539.png)
+![petpreview](https://user-images.githubusercontent.com/80003435/144223224-ed94d8cc-840d-4bab-8d75-fc59a041a609.png)
 
 Virtual Companion Alpha v0.8
 ============================
