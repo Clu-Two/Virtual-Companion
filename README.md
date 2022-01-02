@@ -1,24 +1,34 @@
+<<<<<<< HEAD
+Virtual Companion - Alpha v0.8.5
+=======
 ![petpreview](https://user-images.githubusercontent.com/80003435/144223734-b4140253-bc67-4501-8218-18dc4aa10471.png)
 
 Virtual Companion Alpha v0.8
+>>>>>>> cc9fa69259651958c0858f9d823ebab4e42f7aec
 ============================
 A simple virtual pet, essentially a stat management game.
 Track the project progress here: https://trello.com/b/dNvPpF1X/virtual-entity-alpha
-Uses ImGui for the interface.
 
-Notes: Currently most features working as intended.
-* fixed issue - pets will not live in the backgrouind and not just when actively selected.
-* issue - with Hunger and Thirst displaying Zero as a negtaive, caused by being a float.
-* issue - save and loading not working, intended until database is added back in.
+
+Notes:
+* issue - with Hunger and Thirst displaying Zero as a negtaive, caused by being a float. (with new gui not really an issue now as user cannot see this)
+* issue - save and loading not working temporarily.
+
+v0.8.5 changes:
+-------------
+* added initial alpha gui and graphics
+* removed ImGui
+* removed ImGui-SFML v2.3
+* removed Sqlite 3
 
 v0.8 changes:
 -------------
-* eating and drinking rates have been changed to more realistic variables (so it's more familiar for user).
-* the higher the hunger and thirst level, the faster they are consumed.
-* fixed Jor El, Zoidberg and Mr Biggles Worth eating Zoidbergs food.
-* added deeper stats progress bars for stomach, digestion, consumed water, and bladder.
-* changed progress bar colours.
-* some refactoring & restructuring.
+* eating and drinking rates have been changed to more realistic variables (so it's more familiar for user)
+* the higher the hunger and thirst level, the faster they are consumed
+* fixed Jor El, Zoidberg and Mr Biggles Worth eating Zoidbergs food
+* added deeper stats progress bars for stomach, digestion, consumed water, and bladder
+* changed progress bar colours
+* some refactoring & restructuring
 
 v0.7 changes:
 -------------
@@ -49,18 +59,13 @@ v0.4 changes:
 ------------
 Dependencies
 ------------
-* ImGui 1.83
 * SFML 2.5.1
-* ImGui-SFML v2.3
-* Sqlite 3
 
 ---------------------------
 Features currently implemented
 ---------------------------
-- Ageing
 - Feeding & Hunger
-- Multiple Food Types
 - Water & Thirst
-- Visual Representaion
+- Initial Graphics
 
 
