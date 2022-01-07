@@ -65,7 +65,7 @@ public: // Water
 
     int water_x1_min = 0;
     int water_x1_increment = 139;
-    int water_x1_max = 1390;
+    int water_x1_max = 1390; 
     int water_x1_current = 1390;
     sf::IntRect water_s{ water_x1_current,0,139,237 };
     int gui_Water(float Water_Bowl);

@@ -9,7 +9,7 @@ Track the project progress here: https://trello.com/b/dNvPpF1X/virtual-entity-al
 v0.8.6 changes:
 --------------
 * removed multiple pets
-* cleaned and refactored a lot to suit the new gui
+* cleaned and refactored a lot to suit the new gui 
 
 Notes:
 * issue - new gui elements working but with a few bugs

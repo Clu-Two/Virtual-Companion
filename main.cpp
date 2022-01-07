@@ -33,7 +33,7 @@ sf::Sprite GUI::sprite_loader(sf::Sprite spr,sf::Texture* tex)
     return spr;
 }
 
-int selected = 0;
+int selected = 0; 
 
 int main(int argc, char** argv)
 {
