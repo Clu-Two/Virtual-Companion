@@ -15,180 +15,138 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Pet.h"
 
+sf::Texture* GUI::texture_loader(sf::Texture* tex, const char* texture_files)
+{
+    tex->loadFromFile(texture_files);
+    std::cout << texture_files << std::endl;
+    return tex;
+}
 
-
-
+sf::Sprite GUI::sprite_loader(sf::Sprite spr,sf::Texture* tex)
+{
+    spr.setTexture(*tex); 
+    std::cout << tex << std::endl;
+    return spr;
+}
 
 int selected = 0;
 
-
 int main(int argc, char** argv)
 {
-    std::unique_ptr<Pet_Manager[]> Pet(new Pet_Manager[4]);
-    std::unique_ptr<animator[]> anim(new animator[4]);
+    std::unique_ptr<GUI> gui(new GUI);
+    std::unique_ptr<Animator> animator(new Animator);
+    std::unique_ptr<Pet_Manager[]> Pet(new Pet_Manager);
+
     // Start SFML Window
     sf::RenderWindow main_window;
-    main_window.create(sf::VideoMode(1280, 720), "Companion"/*, sf::Style::None*/); // Style None creates borderless window
+    main_window.create(sf::VideoMode(1280, 720), "Companion", sf::Style::Default); // sf::Style::None creates borderless window
     main_window.setVerticalSyncEnabled(true);
-
     main_window.resetGLStates();
- 
-
 
 
     sf::Clock deltaClock, Clock, animation_state;
-
     sf::Color Transparent = { 0,0,0,100 };
-    //sf::Texture idle, hungry, eating, starving, f, minushp, *currentTex1, *currentTex2, *currentTex3, *currentTex4, *selected_sprite;
 
     // Create and Load Sprites/Assets
-    //sf::Texture habitat, pet, water, addWater, food;
-
-
-
-    if (!anim[selected].habitat.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\Habitat.jpg")) { std::cout << "HABITAT Sprite Load Error!" << std::endl; }
-    sf::Sprite hab(anim[selected].habitat);
-    if (!anim[selected].pet.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\pet_red.png")) { std::cout << "PET Sprite Load Error!" << std::endl; }
-    if (!anim[selected].water.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\water.png")) { std::cout << "WATER Sprite Load Error!" << std::endl; }
-    if (!anim[selected].addWater.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\add_water.png")) { std::cout << "ADD WATER BUTTON Sprite Load Error!" << std::endl; };
-    if (!anim[selected].food.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\food.png")) { std::cout << "FOOD Sprite Load Error!" << std::endl; };
-    if (!anim[selected].shop.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\Shop.png")) { std::cout << "SHOP Sprite Load Error!" << std::endl; };
-    sf::Sprite shopp(anim[selected].shop);
-    if (!anim[selected].shop_button.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\Shop_Button.png")) { std::cout << "SHOP BUTTON Sprite Load Error!" << std::endl; };
-    sf::Sprite shop_buttonp(anim[selected].shop_button);
-    if (!anim[selected].food_item_highlight.loadFromFile("..\\..\\Virtual Companion\\assets\\sprites\\Food_Item_Highlight.png")) { std::cout << "SHOP ITEM HIGHLIGHT Sprite Load Error!" << std::endl; };
-    sf::Sprite food_item_highlightp(anim[selected].food_item_highlight);
-    //Old Assets
-    //hungry.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\hungry.png");
-    //eating.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\eating.png");
-    //minushp.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\starving.png");
-    //f.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\f.png");
-    //idle.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\idle.png");
-    //starving.loadFromFile("..\\..\\Virtual Companion\\assets\\images\\minushp.png");
-    //currentTex1 = &idle;
-    //currentTex2 = &idle;
-    //currentTex3 = &idle;
-    //currentTex4 = &idle;
-
-    static int selItem = 0;
-    static const char* items[] = { "Pet 1","Pet 2", "Pet 3", "Pet 4" };
-
-    static bool save_file = true;
-    static bool save_sql = false;
-
-    static bool x = false;
-
-    Pet[0].pet_name = "Titus";
-    Pet[1].pet_name = "Glycon";
-    Pet[2].pet_name = "Brutas";
-    Pet[3].pet_name = "Demetrius";
-
-    //std::vector<sf::Texture*> SPRITE{ currentTex1, currentTex2, currentTex3, currentTex4 }; selected_sprite = SPRITE[0];
-    std::vector <float> BARS{ Pet[0].Health, Pet[0].Hunger, Pet[0].Thirst };
-    std::vector <const char*> LABELS{ "Health","Hunger","Thirst" };
+    for (int i = 0; i < 5; i++)
+    {
+        *&gui->pTEX[i] = *gui->texture_loader(&gui->pTEX[i], gui->texture_files[i]);
+        gui->SPRITES[i] = gui->sprite_loader(gui->SPRITES[i], &gui->pTEX[i]);
+    }
+    
     // Main Window
-
-
-
     while (main_window.isOpen())
     {
         sf::Event main_window_open;
-
         while (main_window.pollEvent(main_window_open))
         {
-       
-
             if (main_window_open.type == sf::Event::Closed)
             {
                 main_window.close();
             }
         }
-     
-
-        // Set Object Positions & Draw
-        main_window.draw(hab);
-        shop_buttonp.setTextureRect(anim[selected].shop_button_rect);
-        shop_buttonp.setPosition(anim[selected].shop_button_pos_x, anim[selected].shop_button_pos_y);
-        food_item_highlightp.setTextureRect(anim[selected].item_highlight_rect);
-        main_window.draw(shop_buttonp);
-        shopp.setPosition(0, 121);
 
 
-        anim[selected].waterp.setPosition(1082, 8);
-        anim[selected].addwaterp.setPosition(1197, 8);
-        anim[selected].foodp.setPosition(287, 504);
-        anim[selected].pet_sprite.setPosition(585, 528);
+        // Load & Set sprite positions
+        do {
+            for (int i = 0; i < 5; i++) 
+                {
+                    if (i >= 4){gui->sprites_inital_load = true;}
+                    gui->SPRITES[i].setTextureRect(animator->Default_Sprite_Rects[i]);
+                    gui->SPRITES[i].setPosition(gui->SPRITES_xy[i]);
+                }
+            } while (!gui->sprites_inital_load);
 
-        // Gui Updating
-        anim[selected].food_s = anim[selected].gui_Food(Pet[selected].dish_current, anim[selected].food_s);
-        anim[selected].foodp.setTextureRect(anim[selected].food_s);
-        main_window.draw(anim[selected].foodp);
+        // Draw Gui Assets
+        for (int i = 0; i < 5; i++){main_window.draw(gui->SPRITES[i]);}
 
-        anim[selected].pet_sprite.setTextureRect(anim[selected].pet_rect);
-        main_window.draw(anim[selected].pet_sprite);
+        //shop_buttonp.setTextureRect(anim[selected].shop_button_rect);
+        //shop_buttonp.setPosition(anim[selected].shop_button_pos_x, anim[selected].shop_button_pos_y);
+        //food_item_highlightp.setTextureRect(anim[selected].item_highlight_rect);
+        //main_window.draw(shop_buttonp);
+        //shopp.setPosition(0, 121);
 
-        anim[selected].water_s = anim[selected].gui_Water(Pet[selected].Water_Bowl, anim[selected].water_s, anim[selected].water_x1_current);
-        anim[selected].waterp.setTextureRect(anim[selected].water_s);
-        main_window.draw(anim[selected].waterp);
+        //// Gui Updating
+        animator->food_sprite_index = animator->gui_Food(Pet[selected].dish_current);
+        animator->Default_Sprite_Rects[4] = animator->FOOD[animator->food_sprite_index];
 
-        anim[selected].add_water_rect = anim[selected].add_water_rect;
-        anim[selected].addwaterp.setTextureRect(anim[selected].add_water_rect);
-        main_window.draw(anim[selected].addwaterp);
+        animator->water_sprite_index = animator->gui_Water(Pet[selected].Water_Bowl);
+        animator->Default_Sprite_Rects[2] = animator->Water_Status[animator->water_sprite_index];
 
-
-
+        //int pet_sprite_index = 0;
+        animator->pet_rect = animator->pet_state_animation(Pet[selected].Hunger, Pet[selected].Thirst);
 
         sf::Event left_mouse_pressed;
-
         /*if (anim[selected].shop_button_click_box.contains(sf::Mouse::getPosition(main_window).x, sf::Mouse::getPosition(main_window).y))
         {
             std::cout << "Shop HOVER" << std::endl;
         }*/
         int shop_state = 0;
-        if (main_window.pollEvent(left_mouse_pressed))
+        while (main_window.pollEvent(left_mouse_pressed)) // this is broken, was working
         {
             if (left_mouse_pressed.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (!anim[selected].shop_open && anim[selected].shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
+                if (!animator->shop_open && animator->shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
                     shop_state = 2;
                 }
-                else if (anim[selected].shop_open && anim[selected].shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
+                else if (animator->shop_open && animator->shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
                     shop_state = 1;
                 }
-                if (anim[selected].add_water_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
+                if (animator->add_water_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
                     std::cout << "Add Water Button Pressed" << std::endl;
-                    anim[selected].add_water_rect = anim[selected].click_add_water_rect;
+                    animator->add_water_rect = animator->click_add_water_rect;
                     Pet[selected].Hydrater();
-                }
-
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                {
-                    std::cout << "Mouse L Pressed" << std::endl;
                 }
                 if (left_mouse_pressed.type == sf::Event::MouseButtonReleased)
                 {
                     std::cout << "Mouse L Released" << std::endl;
-                    anim[selected].add_water_rect = anim[selected].add_water_rect_default;
+                    animator->add_water_rect = animator->add_water_rect_default;
+                }
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                {
+                    std::cout << "Mouse L Pressed" << std::endl;
                 }
             }
 
             switch (left_mouse_pressed.MouseButtonPressed)
             {
             case 1:
-                anim[selected].shop_open = false;
+                animator->shop_open = false;
                 std::cout << "Shop CLOSED" << std::endl;
                 break;
             case 2:
                 std::cout << "Shop OPENED" << std::endl;
-                anim[selected].shop_open = true;
-                main_window.draw(shopp);
-
+                animator->shop_open = true;
+                //main_window.draw(shopp);
+                break;
+            default:
                 break;
             }
 
@@ -206,93 +164,46 @@ int main(int argc, char** argv)
                   break;
         */
 
-// Timer
+        // Timer
         if (Clock.getElapsedTime().asSeconds() >= 0.005f)
         {
             for (int i = 0; i < 4; i++)
             {
                 Pet[i].Update();
-                //FOOD[i].food_updater();
             }
             Clock.restart();
         }
 
-        // Idle Animation
-        float animation_time_array_idle[4] = { 0.3f, 0.9f, 1.2f, 1.3f };
 
         if (Pet[selected].Hunger < 60.0f || Pet[selected].Thirst < 60.0f)
         {
             for (int i = 0; i < 3; i++)
             {
-                if (animation_state.getElapsedTime().asSeconds() >= animation_time_array_idle[i])
+                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_idle[i])
                 {
-                    anim[selected].pet_rect = anim[selected].Pet_Idle[i];
+                    animator->pet_rect = animator->Pet_Idle[i];
                 }
-                if (animation_state.getElapsedTime().asSeconds() >= animation_time_array_idle[3])
+                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_idle[3])
                 {
                     animation_state.restart();
                 }
             }
-            //if (animation_state.getElapsedTime().asSeconds() >= 0.3f)
-            //{
-            //        anim[selected].pet_rect = anim[selected].Pet_Idle[0];
-            //}
-            //if (animation_state.getElapsedTime().asSeconds() >= 0.9f)
-            //{
-            //    anim[selected].pet_rect = anim[selected].Pet_Idle[1];
-            //}
-            //if (animation_state.getElapsedTime().asSeconds() >= 1.2f)
-            //{
-            //    anim[selected].pet_rect = anim[selected].Pet_Idle[2];
-            //}
-            //if (animation_state.getElapsedTime().asSeconds() >= 1.3f)
-            //{
-            //    animation_state.restart();
-            //}
         }
-
-        // Need Animation
-        float animation_time_array_need[6] = { 0.3f, 0.6f, 0.9f, 1.2f, 1.5f, 1.6f };
 
         if (Pet[selected].Hunger > 60.0f || Pet[selected].Thirst > 60.0f)
         {
             for (int i = 0; i < 6; i++)
             {
 
-                if (animation_state.getElapsedTime().asSeconds() >= animation_time_array_need[i])
+                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_need[i])
                 {
-                    anim[selected].pet_rect = anim[selected].Pet_Need[i];
+                    animator->pet_rect = animator->Pet_Need[i];
                 }
-                if (animation_state.getElapsedTime().asSeconds() >= animation_time_array_need[5])
+                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_need[5])
                 {
                     animation_state.restart();
                 }
             }
-
-            /*if (animation_state.getElapsedTime().asSeconds() >= 0.3f)
-            {
-                anim[selected].pet_rect = anim[selected].Pet_Need[0];
-            }
-            if (animation_state.getElapsedTime().asSeconds() >= 0.6f)
-            {
-                anim[selected].pet_rect = anim[selected].Pet_Need[1];
-            }
-            if (animation_state.getElapsedTime().asSeconds() >= 0.9f)
-            {
-                anim[selected].pet_rect = anim[selected].Pet_Need[2];
-            }
-            if (animation_state.getElapsedTime().asSeconds() >= 1.2f)
-            {
-                anim[selected].pet_rect = anim[selected].Pet_Need[3];
-            }
-            if (animation_state.getElapsedTime().asSeconds() >= 1.5f)
-            {
-                anim[selected].pet_rect = anim[selected].Pet_Need[4];
-            }
-            if (animation_state.getElapsedTime().asSeconds() >= 1.6f)
-            {
-                animation_state.restart();
-            }*/
         }
 
         deltaClock.restart();
@@ -302,10 +213,8 @@ int main(int argc, char** argv)
         main_window.display();
     }
 
-    //selected_pet.release();
-
+    //gui.release();
     return 0;
-
 }
 
 
@@ -320,22 +229,23 @@ void Pet_Manager::Update()
     Eater();
 }
 
-void animator::animation(sf::Texture* texture, sf::Vector2u imageCount, float timer)
-{
-    this->imageCount = imageCount; this->timer = timer;
-    totalTime = 0.0f;
-    currentImage.x = 0;
-    uvRect.width = texture->getSize().x / float(imageCount.x);
-    uvRect.height = texture->getSize().y / float(imageCount.y);
-
-}
+// wtf does this even do??
+//void animator::animation(sf::Texture* texture, sf::Vector2u imageCount, float timer)
+//{
+//    this->imageCount = imageCount; this->timer = timer;
+//    totalTime = 0.0f;
+//    currentImage.x = 0;
+//    uvRect.width = texture->getSize().x / float(imageCount.x);
+//    uvRect.height = texture->getSize().y / float(imageCount.y);
+//
+//}
 
 //animator::~animator()
 //{
 //}
 
 
-sf::IntRect animator::state_animation(sf::IntRect state, float Hunger, float Thirst)
+sf::IntRect Animator::pet_state_animation(float Hunger, float Thirst)
 {
     if (Hunger < 50 || Thirst < 50)
     {
@@ -356,72 +266,35 @@ sf::IntRect animator::state_animation(sf::IntRect state, float Hunger, float Thi
 
 
 // gross, need to refactor
-sf::IntRect animator::gui_Food(float Dish, sf::IntRect food_s)
+int Animator::gui_Food(float Dish)
 {
-    if (Dish <= 100.0f && Dish >= 90.0f)
-    {
-        food_s = food_100;
-    }
-    if (Dish <= 90.0f && Dish >= 80.0f)
-    {
-        food_s = food_90;
-    }
-    if (Dish <= 80.0f && Dish >= 60.0f)
-    {
-        food_s = food_80;
-    }
-    if (Dish <= 60.0f && Dish >= 40.0f)
-    {
-        food_s = food_60;
-    }
-    if (Dish <= 40.0f && Dish >= 20.0f)
-    {
-        food_s = food_40;
-    }
-    if (Dish <= 20.0f && Dish >= 0.0f)
-    {
-        food_s = food_20;
-    }
-    if (Dish <= 0.0f || Dish == 0.0f)
-    {
-        food_s = food_0;
-    }
+    int index = 0;
+    if (Dish <= 100.0f && Dish >= 90.0f) {index = 0;}
+    if (Dish <= 80.0f && Dish >= 60.0f){index = 1; }
+    if (Dish <= 60.0f && Dish >= 40.0f) { index = 2; }
+    if (Dish <= 40.0f && Dish >= 20.0f) { index = 3; }
+    if (Dish <= 20.0f && Dish >= 0.0f) { index = 4; }
+    if (Dish <= 0.0f || Dish == 0.0f) { index = 5; }
 
-    return food_s;
+    return index;
 }
 
-sf::IntRect animator::gui_Water(float Water_Bowl, sf::IntRect water_s, int water_x1_current)
+int Animator::gui_Water(float Water_Bowl)
 {
-    if (Water_Bowl <= 100.0f && Water_Bowl >= 90.0f)
-    {
-        water_x1_current - water_x1_increment;
-        water_s = water_status_100;
-    }
-    if (Water_Bowl <= 90.0f && Water_Bowl >= 80.0f)
-    {
-        water_s = water_status_90;
-    }
-    if (Water_Bowl <= 80.0f && Water_Bowl >= 60.0f)
-    {
-        water_s = water_status_80;
-    }
-    if (Water_Bowl <= 60.0f && Water_Bowl >= 40.0f)
-    {
-        water_s = water_status_60;
-    }
-    if (Water_Bowl <= 40.0f && Water_Bowl >= 20.0f)
-    {
-        water_s = water_status_40;
-    }
-    if (Water_Bowl <= 20.0f && Water_Bowl >= 0.0f)
-    {
-        water_s = water_status_20;
-    }
-    if (Water_Bowl <= 0.0f || Water_Bowl == 0.0f)
-    {
-        water_s = water_status_0;
-    }
-    return water_s;
+    int index = 0;
+    if (Water_Bowl <= 100.0f && Water_Bowl >= 90.0f){index = 10; }
+    if (Water_Bowl <= 90.0f && Water_Bowl >= 80.0f) { index = 9; }
+    if (Water_Bowl <= 80.0f && Water_Bowl >= 70.0f) { index = 8; }
+    if (Water_Bowl <= 70.0f && Water_Bowl == 60.0f) { index = 7; }
+    if (Water_Bowl <= 60.0f && Water_Bowl >= 50.0f) { index = 6; }
+    if (Water_Bowl <= 50.0f && Water_Bowl == 40.0f) { index = 5; }
+    if (Water_Bowl <= 40.0f && Water_Bowl >= 30.0f) { index = 4; }
+    if (Water_Bowl <= 30.0f && Water_Bowl == 20.0f) { index = 3; }
+    if (Water_Bowl <= 20.0f && Water_Bowl >= 10.0f) { index = 2; }
+    if (Water_Bowl <= 10.0f && Water_Bowl == 5.0f) { index = 1; }
+    if (Water_Bowl <= 0.0f || Water_Bowl == 0.0f) { index = 0; }
+
+    return index;
 }
 
 //sf::Sprite Pet_Manager::gui_Health(float Health, sf::Sprite c_Health)
@@ -445,7 +318,7 @@ int Pet_Manager::dish_fill(int dish_fill, int digestion_time)
         dish_current += dish_fill;
         digestion_time += digestion_time;
     }
-    //ImGui::Text("Can't add any more food!");
+    //If Full("Can't add any more food!");
     return digestion_time;
 }
 
@@ -567,6 +440,10 @@ void Pet_Manager::Hydrater()
         if (water_space >= Add_Water) // Add Water to Bowl if not Full
         {
             Water_Bowl += Add_Water;
+        }
+        if (Water_Bowl + Add_Water >= Max_Water_Bowl)
+        {
+            Water_Bowl = Max_Water_Bowl;
         }
         else // Bowl Full inform user
         {
