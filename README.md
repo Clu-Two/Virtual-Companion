@@ -1,19 +1,21 @@
-Virtual Companion - Alpha v0.8.5
-=======
+
 ![petpreview](https://user-images.githubusercontent.com/80003435/144223734-b4140253-bc67-4501-8218-18dc4aa10471.png)
 
-Virtual Companion Alpha v0.8
+Virtual Companion Alpha v0.8.6
 ============================
 A simple virtual pet, essentially a stat management game.
 Track the project progress here: https://trello.com/b/dNvPpF1X/virtual-entity-alpha
 
+v0.8.6 changes:
+--------------
+* removed multiple pets
+* cleaned and refactored a lot to suit the new gui
 
 Notes:
-* issue - with Hunger and Thirst displaying Zero as a negtaive, caused by being a float. (with new gui not really an issue now as user cannot see this)
-* issue - save and loading not working temporarily.
+* issue - new gui elements working but with a few bugs
 
 v0.8.5 changes:
--------------
+---------------
 * added initial alpha gui and graphics
 * removed ImGui
 * removed ImGui-SFML v2.3
@@ -60,7 +62,7 @@ Dependencies
 * SFML 2.5.1
 
 ---------------------------
-Features currently implemented
+Current Features
 ---------------------------
 - Feeding & Hunger
 - Water & Thirst
