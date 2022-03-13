@@ -3,23 +3,38 @@
 class GUI
 {
 public: // Textures & Sprites
-    sf::Texture habitat, pet, water, addWater, food;
-    sf::Texture TEXTURES[5] = { habitat, pet, water, addWater, food };
+    static const int texture_count = 7;
+    sf::Texture habitat, pet, water, addWater, food, shop, food_item_highlight;
+    sf::Texture TEXTURES[texture_count] = { habitat, pet, water, addWater, food, shop, food_item_highlight };
     sf::Texture* pTEX = TEXTURES;
-    sf::Sprite hab_spr, pet_spr, water_spr, addwater_spr, food_spr;
 
-    sf::Sprite SPRITES[5] = { hab_spr, pet_spr, water_spr, addwater_spr, food_spr };
+    sf::Sprite hab_spr, pet_spr, water_spr, addwater_spr, food_spr, shop_spr, food_item_highlight_spr;
+    sf::Sprite SPRITES[texture_count] = { hab_spr, pet_spr, water_spr, addwater_spr, food_spr, shop_spr,food_item_highlight_spr };
 
     sf::Sprite sprite_loader(sf::Sprite spr, sf::Texture* tex);
     sf::Texture* texture_loader(sf::Texture* tex, const char* texture_files);
 
-    const char* habitat_texture_file = "..\\..\\Virtual Companion\\assets\\sprites\\Habitat.jpg";
-    const char* pet_texture_file = "..\\..\\Virtual Companion\\assets\\sprites\\pet_red.png";
-    const char* water_texture_file = "..\\..\\Virtual Companion\\assets\\sprites\\water.png" ;
-    const char* add_water_texture_file = "..\\..\\Virtual Companion\\assets\\sprites\\add_water.png";
-    const char* food_texture_file = "..\\..\\Virtual Companion\\assets\\sprites\\food.png";
+    const char* habitat_texture_file = "sprites\\Habitat.jpg";
+    const char* pet_texture_file = "sprites\\pet_red.png";
+    const char* water_texture_file = "sprites\\water.png" ;
+    const char* add_water_texture_file = "sprites\\add_water.png";
+    const char* food_texture_file = "sprites\\food.png";
+    const char* shop_texture_file = "sprites\\Shop.png";
+    const char* food_item_highlight_texture_file = "sprites\\Food_Item_Highlight.png";
+    const char* texture_files[texture_count] = { habitat_texture_file, pet_texture_file, water_texture_file, add_water_texture_file, food_texture_file, shop_texture_file, food_item_highlight_texture_file };
 
-    const char* texture_files[5] = { habitat_texture_file, pet_texture_file, water_texture_file, add_water_texture_file, food_texture_file };
+
+    void texture_loader(sf::Texture& tex, const char* texture_files)
+    {
+        tex.loadFromFile(texture_files);
+        std::cout << texture_files << std::endl;
+    }
+
+    void sprite_loader(sf::Sprite& spr, sf::Texture& tex)
+    {
+        spr.setTexture(tex);
+        std::cout << &tex << std::endl;
+    }
 
 public: // Coordinates
     sf::Vector2f habitat_xy = { 0,0 };
@@ -27,7 +42,9 @@ public: // Coordinates
     sf::Vector2f water_bowl_xy = { 1082,8 };
     sf::Vector2f water_add_xy = { 1197, 8 };
     sf::Vector2f food_xy = { 287, 504 };
-    sf::Vector2f SPRITES_xy[5] = {habitat_xy, pet_xy, water_bowl_xy, water_add_xy, food_xy};
+    sf::Vector2f shop_xy = { 7,127 };
+    sf::Vector2f food_item_highlight_xy = {};
+    sf::Vector2f SPRITES_xy[texture_count] = {habitat_xy, pet_xy, water_bowl_xy, water_add_xy, food_xy, shop_xy, food_item_highlight_xy };
 
     bool sprites_inital_load = false;
 };
@@ -41,6 +58,13 @@ public: // Defaults
     sf::IntRect water_bowl_default_rect{ 1390,0,139,237 };
     sf::IntRect add_water_default_rect{ 0,0,62,102 };
     sf::IntRect food_default_rect{ 0,0,137,136 };
+    sf::IntRect shop_default_rect{ 9,9,279, 99 };
+    sf::IntRect shop_state = shop_default_rect;
+    sf::IntRect shop_opened_rect{ 0,0,222,600 };
+    sf::IntRect food_item_highlight_rect{0,0,0,0};
+    //sf::IntRect food_item_highlight_rect{ 0,0,173,61 };
+
+    sf::IntRect Default_Sprite_Rects[texture_count] = { habitat_default_rect, pet_defualt_rect, water_bowl_default_rect, add_water_default_rect ,food_default_rect, shop_state,food_item_highlight_rect };
 
 public: // Food
     int x1 = 0, y1 = 0, x2 = 137, y2 = 136;
@@ -83,7 +107,7 @@ public: // Water
     sf::IntRect water_status_100{ 1390,0,139,237 };
     sf::IntRect Water_Status[11]{ water_status_0, water_status_10 ,water_status_20 ,water_status_30 ,water_status_40 ,water_status_50 ,water_status_60 ,water_status_70 ,water_status_80 ,water_status_90 ,water_status_100 };
     int water_sprite_index = 0;
-    bool isAdd_Water_clicked(sf::Sprite* addwater, sf::RenderWindow *render);
+    //bool isAdd_Water_clicked(sf::Sprite* addwater, sf::RenderWindow *render);
 
 public: // Pet
     sf::IntRect pet_rect{ 0,0,130,128 };
@@ -107,14 +131,14 @@ public: // Pet
     // Need Animation
     float animation_time_array_need[6] = { 0.3f, 0.6f, 0.9f, 1.2f, 1.5f, 1.6f };
 public: // Shop
-        
+    sf::IntRect shop_button_area{ 7,127,211,75 }; // { 9, 9, 279, 99 };
     int shop_button_pos_x = 7, shop_button_pos_y = 128, shop_button_pos_w = 211, shop_button_pos_h = 75;
     int shop_button_click_box_x2 = shop_button_pos_x + shop_button_pos_w;
     int shop_button_click_box_y2 = shop_button_pos_y + shop_button_pos_h;
     sf::IntRect shop_button_click_box{ shop_button_pos_x, shop_button_pos_y, shop_button_click_box_x2, shop_button_click_box_y2 };
     bool shop_open = false;
 
-    sf::IntRect Default_Sprite_Rects[5] = { habitat_default_rect, pet_defualt_rect, water_bowl_default_rect, add_water_default_rect ,food_default_rect };
+
 };
 
 
@@ -265,37 +289,5 @@ public:
 public:
 
 };
-
-
-//class animator
-//{
-//public:
-//
-//
-//    //sf::IntRect water_rect{ 1390,0,139,237 };
-//
-//    //sf::IntRect shop_button_rect{ 0,0, 211,75 };
-//
-//    //sf::RectangleShape shop_button_rect; 
-//    //int shop_button_pos_x = 7, shop_button_pos_y = 128, shop_button_pos_w = 211, shop_button_pos_h = 75;
-//    //int shop_button_click_box_x2 = shop_button_pos_x + shop_button_pos_w;
-//    //int shop_button_click_box_y2 = shop_button_pos_y + shop_button_pos_h;
-//    //sf::IntRect shop_button_click_box{ shop_button_pos_x, shop_button_pos_y, shop_button_click_box_x2, shop_button_click_box_y2 };
-//    //bool shop_open = false;
-//    sf::IntRect item_highlight_rect{ 0,0,173,61 };
-//    sf::IntRect pizza_click_box{ 23, 216,196,277 };
-//    sf::IntRect steak_click_box{ 23, 0,0,0 };
-//    sf::IntRect peas_click_box{ 23, 0,0,0 };
-//    sf::IntRect carrot_click_box{ 23, 0,0,0 };
-//    sf::IntRect kiwi_click_box{ 23, 0,0,0 };
-//    sf::IntRect mango_click_box{ 23,587,196, 648 };
-//    bool mango = false;
-//    int shop_item_highlight_x = 23, pizza_highlight_y = 216, mango_highlight_y = 587;
-//
-//private:
-//    sf::Vector2u imageCount, currentImage;
-//    float timer = 0, totalTime = 0;
-//};
-
 
 

@@ -15,31 +15,31 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 
 #include "Pet.h"
 
-sf::Texture* GUI::texture_loader(sf::Texture* tex, const char* texture_files)
+/*
+void GUI::texture_loader(sf::Texture& tex, const char* texture_files)
 {
     tex->loadFromFile(texture_files);
     std::cout << texture_files << std::endl;
     return tex;
 }
 
-sf::Sprite GUI::sprite_loader(sf::Sprite spr,sf::Texture* tex)
+
+sf::Sprite GUI::sprite_loader(sf::Sprite spr, sf::Texture* tex)
 {
     spr.setTexture(*tex); 
     std::cout << tex << std::endl;
     return spr;
 }
-
-int selected = 0; 
+*/
 
 int main(int argc, char** argv)
 {
-    std::unique_ptr<GUI> gui(new GUI);
-    std::unique_ptr<Animator> animator(new Animator);
-    std::unique_ptr<Pet_Manager[]> Pet(new Pet_Manager);
+    GUI* gui = new GUI();
+    Animator* animator = new Animator();
+    Pet_Manager* Pet = new Pet_Manager();
 
     // Start SFML Window
     sf::RenderWindow main_window;
@@ -49,13 +49,17 @@ int main(int argc, char** argv)
 
 
     sf::Clock deltaClock, Clock, animation_state;
-    sf::Color Transparent = { 0,0,0,100 };
+    sf::Color Transparent { 0,0,0,100 };
+ 
 
     // Create and Load Sprites/Assets
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < gui->texture_count; i++)
     {
-        *&gui->pTEX[i] = *gui->texture_loader(&gui->pTEX[i], gui->texture_files[i]);
-        gui->SPRITES[i] = gui->sprite_loader(gui->SPRITES[i], &gui->pTEX[i]);
+        //*&gui->pTEX[i] = *gui->texture_loader(&gui->pTEX[i], gui->texture_files[i]);
+        gui->texture_loader(gui->pTEX[i], gui->texture_files[i]);
+
+       // gui->SPRITES[i] = gui->sprite_loader(gui->SPRITES[i], &gui->pTEX[i]);
+        gui->sprite_loader(gui->SPRITES[i], gui->pTEX[i]);
     }
     
     // Main Window
@@ -66,23 +70,30 @@ int main(int argc, char** argv)
         {
             if (main_window_open.type == sf::Event::Closed)
             {
+                //delete pointers
+                delete gui;
+                delete animator;
+                delete Pet;
                 main_window.close();
+
+                return 0;
             }
         }
 
 
         // Load & Set sprite positions
         do {
-            for (int i = 0; i < 5; i++) 
+            for (int i = 0; i < gui->texture_count; i++)
                 {
-                    if (i >= 4){gui->sprites_inital_load = true;}
+                    if (i >= gui->texture_count - 1){gui->sprites_inital_load = true;}
                     gui->SPRITES[i].setTextureRect(animator->Default_Sprite_Rects[i]);
                     gui->SPRITES[i].setPosition(gui->SPRITES_xy[i]);
+                    gui->SPRITES[i].setScale(1.0f, 1.0f);
                 }
             } while (!gui->sprites_inital_load);
 
         // Draw Gui Assets
-        for (int i = 0; i < 5; i++){main_window.draw(gui->SPRITES[i]);}
+        for (int i = 0; i < gui->texture_count; i++){main_window.draw(gui->SPRITES[i]);}
 
         //shop_buttonp.setTextureRect(anim[selected].shop_button_rect);
         //shop_buttonp.setPosition(anim[selected].shop_button_pos_x, anim[selected].shop_button_pos_y);
@@ -91,17 +102,17 @@ int main(int argc, char** argv)
         //shopp.setPosition(0, 121);
 
         //// Gui Updating
-        animator->food_sprite_index = animator->gui_Food(Pet[selected].dish_current);
+        animator->food_sprite_index = animator->gui_Food(Pet->dish_current);
         animator->Default_Sprite_Rects[4] = animator->FOOD[animator->food_sprite_index];
 
-        animator->water_sprite_index = animator->gui_Water(Pet[selected].Water_Bowl);
+        animator->water_sprite_index = animator->gui_Water(Pet->Water_Bowl);
         animator->Default_Sprite_Rects[2] = animator->Water_Status[animator->water_sprite_index];
 
         //int pet_sprite_index = 0;
-        animator->pet_rect = animator->pet_state_animation(Pet[selected].Hunger, Pet[selected].Thirst);
+        animator->pet_rect = animator->pet_state_animation(Pet->Hunger, Pet->Thirst);
 
         sf::Event left_mouse_pressed;
-        /*if (anim[selected].shop_button_click_box.contains(sf::Mouse::getPosition(main_window).x, sf::Mouse::getPosition(main_window).y))
+        /*if (anim->shop_button_click_box.contains(sf::Mouse::getPosition(main_window).x, sf::Mouse::getPosition(main_window).y))
         {
             std::cout << "Shop HOVER" << std::endl;
         }*/
@@ -110,19 +121,23 @@ int main(int argc, char** argv)
         {
             if (left_mouse_pressed.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left))
             {
-                if (!animator->shop_open && animator->shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
+                if (!animator->shop_open && animator->shop_button_area.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
-                    shop_state = 2;
+                    *&animator->shop_state = animator->shop_opened_rect;
+                    std::cout << "Shop OPENED" << std::endl;
+                    animator->shop_open = true;
                 }
-                else if (animator->shop_open && animator->shop_button_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
+                else if (animator->shop_open && animator->shop_button_area.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
-                    shop_state = 1;
+                    animator->shop_default_rect = { 7,7,211,75 };
+                    std::cout << "Shop CLOSED" << std::endl;
+                    animator->shop_open = false;
                 }
                 if (animator->add_water_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
                 {
                     std::cout << "Add Water Button Pressed" << std::endl;
                     animator->add_water_rect = animator->click_add_water_rect;
-                    Pet[selected].Hydrater();
+                    Pet->Hydrater();
                 }
                 if (left_mouse_pressed.type == sf::Event::MouseButtonReleased)
                 {
@@ -135,20 +150,20 @@ int main(int argc, char** argv)
                 }
             }
 
-            switch (left_mouse_pressed.MouseButtonPressed)
-            {
-            case 1:
-                animator->shop_open = false;
-                std::cout << "Shop CLOSED" << std::endl;
-                break;
-            case 2:
-                std::cout << "Shop OPENED" << std::endl;
-                animator->shop_open = true;
-                //main_window.draw(shopp);
-                break;
-            default:
-                break;
-            }
+            //switch (left_mouse_pressed.MouseButtonPressed)
+            //{
+            //case 1:
+            //    animator->shop_open = false;
+            //    std::cout << "Shop CLOSED" << std::endl;
+            //    break;
+            //case 2:
+            //    std::cout << "Shop OPENED" << std::endl;
+            //    animator->shop_open = true;
+            //    //main_window.draw(shopp);
+            //    break;
+            //default:
+            //    break;
+            //}
 
         }
 
@@ -167,15 +182,13 @@ int main(int argc, char** argv)
         // Timer
         if (Clock.getElapsedTime().asSeconds() >= 0.005f)
         {
-            for (int i = 0; i < 4; i++)
-            {
-                Pet[i].Update();
-            }
+
+            Pet->Update();
             Clock.restart();
         }
 
 
-        if (Pet[selected].Hunger < 60.0f || Pet[selected].Thirst < 60.0f)
+        if (Pet->Hunger < 60.0f || Pet->Thirst < 60.0f)
         {
             for (int i = 0; i < 3; i++)
             {
@@ -190,7 +203,7 @@ int main(int argc, char** argv)
             }
         }
 
-        if (Pet[selected].Hunger > 60.0f || Pet[selected].Thirst > 60.0f)
+        if (Pet->Hunger > 60.0f || Pet->Thirst > 60.0f)
         {
             for (int i = 0; i < 6; i++)
             {
@@ -207,8 +220,6 @@ int main(int argc, char** argv)
         }
 
         deltaClock.restart();
-
-        //main_window.clear();
 
         main_window.display();
     }
@@ -229,7 +240,7 @@ void Pet_Manager::Update()
     Eater();
 }
 
-// wtf does this even do??
+
 //void animator::animation(sf::Texture* texture, sf::Vector2u imageCount, float timer)
 //{
 //    this->imageCount = imageCount; this->timer = timer;
@@ -279,7 +290,7 @@ int Animator::gui_Food(float Dish)
     return index;
 }
 
-int Animator::gui_Water(float Water_Bowl)
+int Animator::gui_Water(float Water_Bowl) 
 {
     int index = 0;
     if (Water_Bowl <= 100.0f && Water_Bowl >= 90.0f){index = 10; }
@@ -578,9 +589,8 @@ void Pet_Manager::addAge()
     }
 }
 
-//bool Pet_Manager::pet_death(bool& show, std::string cause_of_death) // add remove text after a few seconds
+//bool Pet_Manager::pet_death(bool& show, std::string cause_of_death)
 //{
 
 //}
-
 
