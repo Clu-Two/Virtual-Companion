@@ -1,10 +1,20 @@
 
 ![petpreview](https://user-images.githubusercontent.com/80003435/144223734-b4140253-bc67-4501-8218-18dc4aa10471.png)
 
-Virtual Companion Alpha v0.8.6
+Virtual Companion Alpha v0.8.7
 ============================
 A simple virtual pet, essentially a stat management game.
 Track the project progress here: https://trello.com/b/dNvPpF1X/virtual-entity-alpha
+
+
+v0.8.7 changes:
+--------------
+* removed shop feature for now
+* added dui exit button
+* added heart visuals to track health
+
+Notes:
+reduced scope of project by removing shop, gui looks a mess but this is just placeholders
 
 v0.8.6 changes:
 --------------

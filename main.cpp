@@ -9,6 +9,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 
+
+
 #include "windows.h"
 
 #include <fstream>
@@ -43,14 +45,14 @@ int main(int argc, char** argv)
 
     // Start SFML Window
     sf::RenderWindow main_window;
-    main_window.create(sf::VideoMode(1280, 720), "Companion", sf::Style::Default); // sf::Style::None creates borderless window
+    main_window.create(sf::VideoMode(gui->window_x, gui->window_y), "Companion", sf::Style::Default); // sf::Style::None creates borderless window
     main_window.setVerticalSyncEnabled(true);
     main_window.resetGLStates();
 
 
     sf::Clock deltaClock, Clock, animation_state;
     sf::Color Transparent { 0,0,0,100 };
- 
+    sf::Event event;
 
     // Create and Load Sprites/Assets
     for (int i = 0; i < gui->texture_count; i++)
@@ -61,27 +63,14 @@ int main(int argc, char** argv)
        // gui->SPRITES[i] = gui->sprite_loader(gui->SPRITES[i], &gui->pTEX[i]);
         gui->sprite_loader(gui->SPRITES[i], gui->pTEX[i]);
     }
-    
+
+    // Event / Flags
+    sf::Event main_window_open;
     // Main Window
     while (main_window.isOpen())
     {
-        sf::Event main_window_open;
-        while (main_window.pollEvent(main_window_open))
-        {
-            if (main_window_open.type == sf::Event::Closed)
-            {
-                //delete pointers
-                delete gui;
-                delete animator;
-                delete Pet;
-                main_window.close();
-
-                return 0;
-            }
-        }
-
-
         // Load & Set sprite positions
+        // To display an image it must be, (1) Defined as a Texture, linked to a file. (2) Assigned to a Sprite. (3) Sprite Rects Defined. (4) Set coordinates to draw. (5) Draw the sprites.
         do {
             for (int i = 0; i < gui->texture_count; i++)
                 {
@@ -91,15 +80,9 @@ int main(int argc, char** argv)
                     gui->SPRITES[i].setScale(1.0f, 1.0f);
                 }
             } while (!gui->sprites_inital_load);
-
         // Draw Gui Assets
         for (int i = 0; i < gui->texture_count; i++){main_window.draw(gui->SPRITES[i]);}
-
-        //shop_buttonp.setTextureRect(anim[selected].shop_button_rect);
-        //shop_buttonp.setPosition(anim[selected].shop_button_pos_x, anim[selected].shop_button_pos_y);
-        //food_item_highlightp.setTextureRect(anim[selected].item_highlight_rect);
-        //main_window.draw(shop_buttonp);
-        //shopp.setPosition(0, 121);
+      
 
         //// Gui Updating
         animator->food_sprite_index = animator->gui_Food(Pet->dish_current);
@@ -108,79 +91,76 @@ int main(int argc, char** argv)
         animator->water_sprite_index = animator->gui_Water(Pet->Water_Bowl);
         animator->Default_Sprite_Rects[2] = animator->Water_Status[animator->water_sprite_index];
 
+        animator->Default_Sprite_Rects[6] = animator->exit_state[animator->exit_index];
+        animator->Default_Sprite_Rects[7] = animator->life_state[animator->life_index];
+        
+        animator->life_index = Pet->health_tracker();
+        std::cout << animator->life_index << std::endl;
+        std::cout << Pet->Health << std::endl;
         //int pet_sprite_index = 0;
         animator->pet_rect = animator->pet_state_animation(Pet->Hunger, Pet->Thirst);
 
-        sf::Event left_mouse_pressed;
-        /*if (anim->shop_button_click_box.contains(sf::Mouse::getPosition(main_window).x, sf::Mouse::getPosition(main_window).y))
+
+        bool lock_click = false;
+        // Left Mouse Button Press Events
+        while (main_window.pollEvent(event)) // this is broken, was working
         {
-            std::cout << "Shop HOVER" << std::endl;
-        }*/
-        int shop_state = 0;
-        while (main_window.pollEvent(left_mouse_pressed)) // this is broken, was working
-        {
-            if (left_mouse_pressed.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            // Title Bar Close Window Button
+            if (event.type == sf::Event::Closed)
             {
-                if (!animator->shop_open && animator->shop_button_area.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
-                {
-                    *&animator->shop_state = animator->shop_opened_rect;
-                    std::cout << "Shop OPENED" << std::endl;
-                    animator->shop_open = true;
-                }
-                else if (animator->shop_open && animator->shop_button_area.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
-                {
-                    animator->shop_default_rect = { 7,7,211,75 };
-                    std::cout << "Shop CLOSED" << std::endl;
-                    animator->shop_open = false;
-                }
-                if (animator->add_water_click_box.contains(left_mouse_pressed.mouseButton.x, left_mouse_pressed.mouseButton.y))
-                {
-                    std::cout << "Add Water Button Pressed" << std::endl;
-                    animator->add_water_rect = animator->click_add_water_rect;
-                    Pet->Hydrater();
-                }
-                if (left_mouse_pressed.type == sf::Event::MouseButtonReleased)
-                {
-                    std::cout << "Mouse L Released" << std::endl;
-                    animator->add_water_rect = animator->add_water_rect_default;
-                }
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                {
-                    std::cout << "Mouse L Pressed" << std::endl;
-                }
+                main_window.close();
             }
 
-            //switch (left_mouse_pressed.MouseButtonPressed)
-            //{
-            //case 1:
-            //    animator->shop_open = false;
-            //    std::cout << "Shop CLOSED" << std::endl;
-            //    break;
-            //case 2:
-            //    std::cout << "Shop OPENED" << std::endl;
-            //    animator->shop_open = true;
-            //    //main_window.draw(shopp);
-            //    break;
-            //default:
-            //    break;
-            //}
-
+            if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left && !lock_click)
+            {
+                lock_click = true;
+                std::cout << lock_click << std::endl;
+                if (animator->exit_application.contains(event.mouseButton.x, event.mouseButton.y))
+                {
+                    std::cout << "Exit Button Pressed" << std::endl;
+                    animator->exit_idle_rect = animator->exit_active_rect;
+                    animator->exit_index = 1;
+                    break;
+                }
+                if (animator->water_click_box.contains(event.mouseButton.x, event.mouseButton.y))
+                {
+                    std::cout << "Add Water Button Pressed" << std::endl;
+                    animator->water_rect = animator->click_water_rect;
+                    Pet->Hydrater();
+                }
+            }
+                if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
+                {
+                    if (animator->exit_application.contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        std::cout << "Exit Button Released" << std::endl;
+                        animator->exit_index = 0;
+                        event.type = sf::Event::Closed;
+                    }
+                    lock_click = false;
+                    std::cout << lock_click << std::endl;
+                }
+            
+            switch (event.type)
+            {
+            case sf::Event::Closed:
+                //delete pointers
+                delete gui;
+                delete animator;
+                delete Pet;
+                main_window.close();
+                return 0;
+                break;
+            case sf::Event::KeyPressed:
+                std::cout << "Key Pressed" << std::endl;
+                break;
+            default:
+                break;
+            }
         }
 
-        /*      case 1:
-                  std::cout << "Pizza Selected" << std::endl;
-                  anim[selected].food_item_highlightp.setPosition(anim[selected].shop_item_highlight_x, anim[selected].pizza_highlight_y);
-                  main_window.draw(anim[selected].food_item_highlightp);
-                  break;
-              case 2:
-                  std::cout << "Mango Selected" << std::endl;
-                  anim[selected].food_item_highlightp.setPosition(anim[selected].shop_item_highlight_x, anim[selected].mango_highlight_y);
-                  main_window.draw(anim[selected].food_item_highlightp);
-                  break;
-        */
-
         // Timer
-        if (Clock.getElapsedTime().asSeconds() >= 0.005f)
+        if (Clock.getElapsedTime().asSeconds() >= 0.02500f)
         {
 
             Pet->Update();
@@ -238,6 +218,7 @@ void Pet_Manager::Update()
     H2OProcessor();
     DehyManager();
     Eater();
+    health_tracker();
 }
 
 
@@ -275,6 +256,14 @@ sf::IntRect Animator::pet_state_animation(float Hunger, float Thirst)
     return pet_rect;
 }
 
+//sf::IntRect Animator::gui_close_button(bool close_button_pressed)
+//{
+//    if (close_button_pressed)
+//    {
+//        exit_idle_rect = exit_active_rect;
+//    }
+//    return exit_idle_rect;
+//}
 
 // gross, need to refactor
 int Animator::gui_Food(float Dish)
@@ -307,6 +296,7 @@ int Animator::gui_Water(float Water_Bowl)
 
     return index;
 }
+
 
 //sf::Sprite Pet_Manager::gui_Health(float Health, sf::Sprite c_Health)
 //{
@@ -573,6 +563,29 @@ void Pet_Manager::DehyManager()
     {
         //pet_death(ALIVE, thirst_death);
     }
+}
+
+int Pet_Manager::health_tracker()
+{
+    int health_index = 0;
+    if (Health > 65)
+    {
+        health_index = 0;
+    }
+    if (Health <= 65)
+    {
+        health_index = 1;
+    }
+    if (Health <= 33)
+    {
+        health_index = 2;
+    }
+    if (Health <= 0)
+    {
+        // Come up with something
+    }
+
+    return health_index;
 }
 
 //Age

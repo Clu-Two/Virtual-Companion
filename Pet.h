@@ -3,68 +3,78 @@
 class GUI
 {
 public: // Textures & Sprites
-    static const int texture_count = 7;
-    sf::Texture habitat, pet, water, addWater, food, shop, food_item_highlight;
-    sf::Texture TEXTURES[texture_count] = { habitat, pet, water, addWater, food, shop, food_item_highlight };
+    static const int texture_count = 8;
+    sf::Texture habitat, pet, water, food, food_button, water_button, close_button, life;
+    sf::Texture TEXTURES[texture_count] = { habitat, pet, water, food, food_button, water_button, close_button, life };
     sf::Texture* pTEX = TEXTURES;
 
-    sf::Sprite hab_spr, pet_spr, water_spr, addwater_spr, food_spr, shop_spr, food_item_highlight_spr;
-    sf::Sprite SPRITES[texture_count] = { hab_spr, pet_spr, water_spr, addwater_spr, food_spr, shop_spr,food_item_highlight_spr };
+    sf::Sprite hab_spr, pet_spr, water_spr, food_spr, food_button_spr, water_button_spr, close_button_spr, life_spr;
+    sf::Sprite SPRITES[texture_count] = { hab_spr, pet_spr, water_spr, food_spr, food_button_spr, water_button_spr, close_button_spr, life_spr };
 
-    sf::Sprite sprite_loader(sf::Sprite spr, sf::Texture* tex);
-    sf::Texture* texture_loader(sf::Texture* tex, const char* texture_files);
+    //sf::Sprite sprite_loader(sf::Sprite spr, sf::Texture* tex);
+    //sf::Texture* texture_loader(sf::Texture* tex, const char* texture_files);
 
     const char* habitat_texture_file = "sprites\\Habitat.jpg";
     const char* pet_texture_file = "sprites\\pet_red.png";
-    const char* water_texture_file = "sprites\\water.png" ;
-    const char* add_water_texture_file = "sprites\\add_water.png";
+    const char* water_texture_file = "sprites\\water.png";
     const char* food_texture_file = "sprites\\food.png";
-    const char* shop_texture_file = "sprites\\Shop.png";
-    const char* food_item_highlight_texture_file = "sprites\\Food_Item_Highlight.png";
-    const char* texture_files[texture_count] = { habitat_texture_file, pet_texture_file, water_texture_file, add_water_texture_file, food_texture_file, shop_texture_file, food_item_highlight_texture_file };
+    const char* food_tf = "sprites\\food_temp.png";
+    const char* water_tf = "sprites\\water_temp.png";
+    const char* close_button_tf = "sprites\\close_button.png";
+    const char* life_tf = "sprites\\life_sheet.png";
+    const char* texture_files[texture_count] = 
+    { habitat_texture_file, pet_texture_file, water_texture_file, food_texture_file, food_tf, water_tf, close_button_tf, life_tf };
 
 
     void texture_loader(sf::Texture& tex, const char* texture_files)
     {
-        tex.loadFromFile(texture_files);
-        std::cout << texture_files << std::endl;
+        if(tex.loadFromFile(texture_files))
+        {std::cout << "// loaded OK from - " << texture_files << std::endl; }
     }
 
     void sprite_loader(sf::Sprite& spr, sf::Texture& tex)
     {
         spr.setTexture(tex);
-        std::cout << &tex << std::endl;
+        std::cout << "// texture set at - " << &tex << std::endl;
     }
 
 public: // Coordinates
+    int window_x = 600, window_y = 400;
     sf::Vector2f habitat_xy = { 0,0 };
-    sf::Vector2f pet_xy = { 585, 528 };
-    sf::Vector2f water_bowl_xy = { 1082,8 };
-    sf::Vector2f water_add_xy = { 1197, 8 };
-    sf::Vector2f food_xy = { 287, 504 };
-    sf::Vector2f shop_xy = { 7,127 };
-    sf::Vector2f food_item_highlight_xy = {};
-    sf::Vector2f SPRITES_xy[texture_count] = {habitat_xy, pet_xy, water_bowl_xy, water_add_xy, food_xy, shop_xy, food_item_highlight_xy };
+    sf::Vector2f pet_xy = { 300, 272 };
+    sf::Vector2f water_bowl_xy = { 450,4 };
+    sf::Vector2f food_xy = { 75, 264 };
+    sf::Vector2f foodb_xy = { 75, 264 };
+    sf::Vector2f waterb_xy = { 250, 4 };
+    sf::Vector2f close_button_xy = { 0,0 };
+    sf::Vector2f life_xy = { 50,0 };
+    sf::Vector2f SPRITES_xy[texture_count] = {habitat_xy, pet_xy, water_bowl_xy, food_xy, foodb_xy, waterb_xy, close_button_xy, life_xy };
 
     bool sprites_inital_load = false;
 };
 
 class Animator : public GUI
 {
+public: // Mouse & GUI Button Interaction Regions
+    sf::IntRect exit_application{ 0, 0, 50,50 };
 
-public: // Defaults
+public: // Default size of sprite rects - four coordinates x1y1x2y2
     sf::IntRect habitat_default_rect = { 0,0,1280, 720 };
-    sf::IntRect pet_defualt_rect = { 0,0,130,128 };
+    sf::IntRect pet_default_rect = { 0,0,130,128 };
     sf::IntRect water_bowl_default_rect{ 1390,0,139,237 };
-    sf::IntRect add_water_default_rect{ 0,0,62,102 };
     sf::IntRect food_default_rect{ 0,0,137,136 };
-    sf::IntRect shop_default_rect{ 9,9,279, 99 };
-    sf::IntRect shop_state = shop_default_rect;
-    sf::IntRect shop_opened_rect{ 0,0,222,600 };
-    sf::IntRect food_item_highlight_rect{0,0,0,0};
-    //sf::IntRect food_item_highlight_rect{ 0,0,173,61 };
-
-    sf::IntRect Default_Sprite_Rects[texture_count] = { habitat_default_rect, pet_defualt_rect, water_bowl_default_rect, add_water_default_rect ,food_default_rect, shop_state,food_item_highlight_rect };
+    sf::IntRect food_tmp_rect{ 0,0, 300, 300 };
+    sf::IntRect water_tmp_rect{ 0,0, 300, 300 };
+    sf::IntRect exit_idle_rect{ 0,0, 50, 50 };
+    sf::IntRect exit_active_rect{ 50, 0, 50, 50 };
+    sf::IntRect exit_state[2]{ exit_idle_rect ,exit_active_rect }; // Rework this I don't think its needed
+    int exit_index = 0;
+    sf::IntRect life_max_rect{ 0, 0, 300, 100 };
+    sf::IntRect life_half_rect{ 0, 0, 200, 100 };
+    sf::IntRect life_min_rect{ 0, 0, 100, 100 };
+    sf::IntRect life_state[3]{ life_max_rect ,life_half_rect, life_min_rect };
+    int life_index = 0;
+    sf::IntRect Default_Sprite_Rects[texture_count] = { habitat_default_rect, pet_default_rect, water_bowl_default_rect, food_default_rect, food_tmp_rect, water_tmp_rect, exit_idle_rect };
 
 public: // Food
     int x1 = 0, y1 = 0, x2 = 137, y2 = 136;
@@ -81,11 +91,11 @@ public: // Food
     int food_sprite_index = 0;
 
 public: // Water
-    sf::IntRect add_water_click_box{ 1197,8, 1259,110 };
-    sf::IntRect add_water_rect_default{ 0,0,62,102 };
-    sf::IntRect add_water_rect{ 0,0,62,102 };
-    sf::IntRect click_add_water_rect{ 62,0,62,102 };
-    sf::IntRect Add_Water[2]{ add_water_rect ,click_add_water_rect };
+    sf::IntRect water_click_box{ 450, 4, 600,200 };
+    sf::IntRect water_rect_default{ 0,0,62,102 };
+    sf::IntRect water_rect{ 0,0,62,102 };
+    sf::IntRect click_water_rect{ 62,0,62,102 };
+    //sf::IntRect Water[2]{ water_rect ,click_water_rect };
 
     int water_x1_min = 0;
     int water_x1_increment = 139;
@@ -130,45 +140,16 @@ public: // Pet
     float animation_time_array_idle[4] = { 0.3f, 0.9f, 1.2f, 1.3f };
     // Need Animation
     float animation_time_array_need[6] = { 0.3f, 0.6f, 0.9f, 1.2f, 1.5f, 1.6f };
-public: // Shop
-    sf::IntRect shop_button_area{ 7,127,211,75 }; // { 9, 9, 279, 99 };
-    int shop_button_pos_x = 7, shop_button_pos_y = 128, shop_button_pos_w = 211, shop_button_pos_h = 75;
-    int shop_button_click_box_x2 = shop_button_pos_x + shop_button_pos_w;
-    int shop_button_click_box_y2 = shop_button_pos_y + shop_button_pos_h;
-    sf::IntRect shop_button_click_box{ shop_button_pos_x, shop_button_pos_y, shop_button_click_box_x2, shop_button_click_box_y2 };
-    bool shop_open = false;
-
-
 };
 
 
 
-class Stats
-{
-public:
-    int currency_value = 1;
-    int bank = 10;
-};
-
-class Pet_Shop : Stats
-{
-public:
-    const char* food_names[6] = { "Pizza", "Steak", "Carrot", "Peas", "Kiwi", "Mango" };
-    int Water_Cost = 1;
-    int Pizza_Cost = 8;
-    int Steak_Cost = 10;
-    int Carrot_Cost = 3;
-    int Peas_Cost = 4;
-    int Kiwi_Cost = 5;
-    int Mango_Cost = 5;
-    int Food_Item_Costs[7] = { Water_Cost, Pizza_Cost, Steak_Cost, Carrot_Cost,Peas_Cost,Kiwi_Cost, Mango_Cost };
-};
-
-class Digestion : Pet_Shop
-{
-    int Digestion_Time = 1;
-    int Pizza_Digestion = Digestion_Time * 10;
-};
+//class Stats
+//{
+//public:
+//    int currency_value = 1;
+//    int bank = 10;
+//};
 
 class Pet_Manager
 {
@@ -268,6 +249,7 @@ public:
     const char* food_empty = { "has no food!" };
 
     void addAge();
+    int health_tracker();
 
     void Digester();
     void StarvManager();
