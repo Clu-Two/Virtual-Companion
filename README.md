@@ -1,5 +1,5 @@
 
-![gitsplash_wide](gitsplash_wide.png)
+![gitsplash_wide](https://i.imgur.com/UJdZQJi.png)
 
 Virtual Companion Alpha v0.9
 ============================
