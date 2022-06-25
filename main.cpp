@@ -8,8 +8,7 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
-
-
+#include <SFML/Graphics/Text.hpp>
 
 #include "windows.h"
 
@@ -20,22 +19,6 @@
 
 #include "Pet.h"
 
-/*
-void GUI::texture_loader(sf::Texture& tex, const char* texture_files)
-{
-    tex->loadFromFile(texture_files);
-    std::cout << texture_files << std::endl;
-    return tex;
-}
-
-
-sf::Sprite GUI::sprite_loader(sf::Sprite spr, sf::Texture* tex)
-{
-    spr.setTexture(*tex); 
-    std::cout << tex << std::endl;
-    return spr;
-}
-*/
 
 int main(int argc, char** argv)
 {
@@ -57,10 +40,7 @@ int main(int argc, char** argv)
     // Create and Load Sprites/Assets
     for (int i = 0; i < gui->texture_count; i++)
     {
-        //*&gui->pTEX[i] = *gui->texture_loader(&gui->pTEX[i], gui->texture_files[i]);
         gui->texture_loader(gui->pTEX[i], gui->texture_files[i]);
-
-       // gui->SPRITES[i] = gui->sprite_loader(gui->SPRITES[i], &gui->pTEX[i]);
         gui->sprite_loader(gui->SPRITES[i], gui->pTEX[i]);
     }
 
@@ -82,23 +62,27 @@ int main(int argc, char** argv)
             } while (!gui->sprites_inital_load);
         // Draw Gui Assets
         for (int i = 0; i < gui->texture_count; i++){main_window.draw(gui->SPRITES[i]);}
-      
+
+        if (!Pet->font.loadFromFile("arial.ttf"))
+        {
+            std::cout << "Font Load Failed" << std::endl;
+        }
+        Pet->display_age(Pet->Age);
+        main_window.draw(Pet->age_text);
 
         //// Gui Updating
         animator->food_sprite_index = animator->gui_Food(Pet->dish_current);
-        animator->Default_Sprite_Rects[4] = animator->FOOD[animator->food_sprite_index];
-
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::FOOD] = animator->food_states[animator->food_sprite_index];
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::FEED] = animator->feed_state[animator->feed_index];
         animator->water_sprite_index = animator->gui_Water(Pet->Water_Bowl);
-        animator->Default_Sprite_Rects[2] = animator->Water_Status[animator->water_sprite_index];
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::WATER] = animator->Water_Status[animator->water_sprite_index];
 
-        animator->Default_Sprite_Rects[6] = animator->exit_state[animator->exit_index];
-        animator->Default_Sprite_Rects[7] = animator->life_state[animator->life_index];
-        
-        animator->life_index = Pet->health_tracker();
-        std::cout << animator->life_index << std::endl;
-        std::cout << Pet->Health << std::endl;
-        //int pet_sprite_index = 0;
-        animator->pet_rect = animator->pet_state_animation(Pet->Hunger, Pet->Thirst);
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::EXIT] = animator->exit_state[animator->exit_index];
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::LIFE] = animator->life_state[animator->life_index];
+        animator->Default_Sprite_Rects[Animator::Sprite_Index::PET] = animator->pet_rect;
+        animator->life_index = Pet->health_tracker(); // Modular
+
+        animator->pet_state_index = animator->pet_state_animation(Pet->Hunger, Pet->Thirst);
 
 
         bool lock_click = false;
@@ -118,7 +102,6 @@ int main(int argc, char** argv)
                 if (animator->exit_application.contains(event.mouseButton.x, event.mouseButton.y))
                 {
                     std::cout << "Exit Button Pressed" << std::endl;
-                    animator->exit_idle_rect = animator->exit_active_rect;
                     animator->exit_index = 1;
                     break;
                 }
@@ -126,7 +109,12 @@ int main(int argc, char** argv)
                 {
                     std::cout << "Add Water Button Pressed" << std::endl;
                     animator->water_rect = animator->click_water_rect;
-                    Pet->Hydrater();
+                }
+                if (animator->feed_cb.contains(event.mouseButton.x, event.mouseButton.y))
+                {
+                    std::cout << "Add Food Pressed" << std::endl;
+                    animator->feed_index = 1;
+                    break;
                 }
             }
                 if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left)
@@ -134,10 +122,24 @@ int main(int argc, char** argv)
                     if (animator->exit_application.contains(event.mouseButton.x, event.mouseButton.y))
                     {
                         std::cout << "Exit Button Released" << std::endl;
-                        animator->exit_index = 0;
+                     
                         event.type = sf::Event::Closed;
                     }
+                    if (animator->feed_cb.contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        std::cout << "Add Food Released" << std::endl;
+                        Pet->dish_fill(20, 30);
+                    }
+                    if (animator->water_click_box.contains(event.mouseButton.x, event.mouseButton.y))
+                    {
+                        std::cout << "Add Water Button Released" << std::endl;
+                        animator->water_rect = animator->water_rect_default;
+                        Pet->Hydrater();
+                        break;
+                    }
                     lock_click = false;
+                    animator->exit_index = 0;
+                    animator->feed_index = 0;
                     std::cout << lock_click << std::endl;
                 }
             
@@ -168,34 +170,37 @@ int main(int argc, char** argv)
         }
 
 
-        if (Pet->Hunger < 60.0f || Pet->Thirst < 60.0f)
+        if (animator->pet_state_index == Animator::pet_state::IDLE)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_idle[i])
                 {
                     animator->pet_rect = animator->Pet_Idle[i];
                 }
-                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_idle[3])
+                if (animation_state.getElapsedTime().asSeconds() > animator->animation_time_array_idle[2])
                 {
                     animation_state.restart();
+                    std::cout << "Idle Restart" << std::endl;
                 }
+
             }
         }
 
-        if (Pet->Hunger > 60.0f || Pet->Thirst > 60.0f)
+        if (animator->pet_state_index == Animator::pet_state::NEED)
         {
-            for (int i = 0; i < 6; i++)
+            for (int i = 0; i < 5; i++)
             {
-
                 if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_need[i])
                 {
                     animator->pet_rect = animator->Pet_Need[i];
                 }
-                if (animation_state.getElapsedTime().asSeconds() >= animator->animation_time_array_need[5])
+                if (animation_state.getElapsedTime().asSeconds() > animator->animation_time_array_need[5])
                 {
                     animation_state.restart();
+                    std::cout << "Need Restart" << std::endl;
                 }
+                
             }
         }
 
@@ -221,60 +226,29 @@ void Pet_Manager::Update()
     health_tracker();
 }
 
-
-//void animator::animation(sf::Texture* texture, sf::Vector2u imageCount, float timer)
-//{
-//    this->imageCount = imageCount; this->timer = timer;
-//    totalTime = 0.0f;
-//    currentImage.x = 0;
-//    uvRect.width = texture->getSize().x / float(imageCount.x);
-//    uvRect.height = texture->getSize().y / float(imageCount.y);
-//
-//}
-
-//animator::~animator()
-//{
-//}
-
-
-sf::IntRect Animator::pet_state_animation(float Hunger, float Thirst)
+int Animator::pet_state_animation(float Hunger, float Thirst)
 {
-    if (Hunger < 50 || Thirst < 50)
+    if (Hunger >= 50.0f && Thirst >= 50.0f)
     {
-        for (int i = 0; i < 5; i++) // bad remove
-        {
-            pet_rect = Pet_Need[i];
-        }
+       
+        pet_state_index = pet_state::NEED;
     }
-    if (Hunger > 70 && Thirst > 70)
+    if (Hunger < 50.0f || Thirst < 50.0f)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            pet_rect = Pet_Idle[i];
-        }
+        pet_state_index = pet_state::IDLE;
     }
-    return pet_rect;
+    return pet_state_index;
 }
-
-//sf::IntRect Animator::gui_close_button(bool close_button_pressed)
-//{
-//    if (close_button_pressed)
-//    {
-//        exit_idle_rect = exit_active_rect;
-//    }
-//    return exit_idle_rect;
-//}
 
 // gross, need to refactor
 int Animator::gui_Food(float Dish)
 {
     int index = 0;
-    if (Dish <= 100.0f && Dish >= 90.0f) {index = 0;}
-    if (Dish <= 80.0f && Dish >= 60.0f){index = 1; }
-    if (Dish <= 60.0f && Dish >= 40.0f) { index = 2; }
-    if (Dish <= 40.0f && Dish >= 20.0f) { index = 3; }
-    if (Dish <= 20.0f && Dish >= 0.0f) { index = 4; }
-    if (Dish <= 0.0f || Dish == 0.0f) { index = 5; }
+    if (Dish <= 100.0f && Dish >= 75.0f) {index = 0;}
+    if (Dish <= 75.0f && Dish >= 50.0f){index = 1; }
+    if (Dish <= 50.0f && Dish >= 25.0f) { index = 2; }
+    if (Dish <= 25.0f && Dish >= 0.0f) { index = 3; }
+    if (Dish <= 0.0f || Dish == 0.0f) { index = 4; }
 
     return index;
 }
@@ -296,19 +270,6 @@ int Animator::gui_Water(float Water_Bowl)
 
     return index;
 }
-
-
-//sf::Sprite Pet_Manager::gui_Health(float Health, sf::Sprite c_Health)
-//{
-//    if (Health <= 100 && Health >= 65)
-//    {
-//        c_Health = 
-//    }
-//    
-//    
-//    return sf::Sprite();
-//}
-
 
 int Pet_Manager::dish_fill(int dish_fill, int digestion_time)
 {
@@ -349,10 +310,11 @@ void Pet_Manager::Eater() //
             }
             dish_current -= 0.1f; // Reduce Food available to eat 3f max 0/3
             Stomach += 0.1f; // Increase Ingested Calories
+            //std::cout << dish_current << std::endl;
         }
         if (Stomach >= Stomach_Max)
         {
-            std::cout << "Companion cannot eat any more" << std::endl;
+            // Pet Full Animation State // Eventually
         }
     }
 }
@@ -382,7 +344,7 @@ void Pet_Manager::Digester()
         }
         if (Digested > Digested_Min)
         {
-            Digested -= 0.005f;
+            Digested -= 0.05f;
 
             if (Digested < Digested_Min)
             {
@@ -446,7 +408,7 @@ void Pet_Manager::Hydrater()
         {
             Water_Bowl = Max_Water_Bowl;
         }
-        else // Bowl Full inform user
+        if(water_space < Add_Water)
         {
             std::cout << "Water Bowl Full" << std::endl;
         }
@@ -593,13 +555,30 @@ void Pet_Manager::addAge()
 {
     if (ALIVE == true)
     {
-        age_track += 0.0001;
+        age_track += 0.01;
         if (age_track >= 1.0)
         {
             Age += 1.0;
             age_track = 0.0;
         }
     }
+}
+
+void Pet_Manager::display_age(float age)
+{
+    age_text.setFont(font); // font is a sf::Font
+    int iage = age;
+    // set the string to display
+    age_text.setString(std::to_string(iage));
+
+    // set the character size
+    age_text.setCharacterSize(30); // in pixels, not points!
+
+    // set the color
+    age_text.setFillColor(sf::Color::White);
+
+    // set the text style
+    age_text.setStyle(sf::Text::Bold);       
 }
 
 //bool Pet_Manager::pet_death(bool& show, std::string cause_of_death)
